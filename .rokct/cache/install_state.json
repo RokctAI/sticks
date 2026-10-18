@@ -1,0 +1,568 @@
+{
+  "packages": {
+    "agent_sdk": {
+      "version": "1.2.0",
+      "files": {
+        "lib/presentation/pages/agent/assistant_chat_page.dart": "a891469d4692d431071ac2b535bd8f06604af576e39785cb8fb7b34b47f00c21",
+        "assets/demo/agent/api.ask_assistant.json": "a8b75e96ad9e05956bfd4c174e956aedeb50966ddb9710560444cbd4d5edaf0b"
+      },
+      "routes": [
+        {
+          "path": "/assistant-chat",
+          "page": "AssistantChatRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/pages/agent/assistant_chat_page.dart"
+        }
+      ],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [],
+      "database": {
+        "tables": [
+          {
+            "class": "AssistantCacheTable",
+            "import": "package:agent_sdk/src/common/infrastructure/database/drift_tables.dart"
+          },
+          {
+            "class": "AssistantHistoryTable",
+            "import": "package:agent_sdk/src/common/infrastructure/database/drift_tables.dart"
+          }
+        ],
+        "migration": {
+          "version": 21,
+          "step": "if (from < 15) { await m.createTable(assistantCacheTable); await m.createTable(assistantHistoryTable); } if (from < 21) { await ensureAgentOwnerScopeColumns(this); }"
+        },
+        "_comment": "21 is agent_sdk's owner-scoping version in the shared fleetwide namespace. assistant_history_table gains an `owner` column inside its primary key so two accounts on one device cannot read each other's transcripts; the step rebuilds the table (rename aside, recreate, copy the shared columns, drop) because SQLite cannot alter a primary key in place, and carried rows take the '' default, which stays visible to everyone. assistant_cache_table is content, not user data, and is left unscoped."
+      },
+      "app_assets": [
+        "assets/demo/agent/"
+      ]
+    },
+    "base_sdk": {
+      "version": "1.85.0",
+      "files": {
+        "lib/main.dart": "7ff7d1a7dd01775d597fe0348d52acde9dc5251393883497eeb8b62ffda04a09",
+        "lib/presentation/app_widget.dart": "efb1ad2ab2e5442ec17360248651f0bd8801e071d8178c8949a248b9042e0304",
+        "lib/presentation/routes/app_router.dart": "3b99e50c60dab1161ccf14aa381f7481ab1baad0223575df04e4bda89a20464b",
+        "lib/presentation/routes/route_pages.dart": "32ab7543d1b94e5b5aedd5a59604a390c373d6e881801c875e37f2ddd001d8c8",
+        "pubspec.yaml": "caee7c06a9f8ed4c4d76ba2eff4fb3455a23cb4846530fa60ceb7759a3f3918f",
+        "analysis_options.yaml": "d2ddc1abb88606ec0127fd27b08ffd12a932f790bd14372125d316c70a1ccb15",
+        "flutter_native_splash.yaml": "d469a133b5e1631d6ba811b048d290449224075edad2153189cfb2edc3f4d100",
+        "android/build.gradle": "46fb8b0aeb9c84c391c7948f8a31d44c71e2cb58ef405aa9e0f11113d52b471f",
+        "android/.gitignore": "b24b3531091953441c728b5962e88b9d24e9b733eaabda7943e0a5b52fcd648f",
+        "android/gradle.properties": "d853bae3fb8b8bae0204765148655611268c7e6bc050a88b59f4a933e00e2fcf",
+        "android/settings.gradle": "65dcc42dd2d8cd8cf0e71ce2715c8faaa854a8e1ec19e565f33145625dda0217",
+        "android/app/build.gradle": "314f9c416ca4517bf9d56f3e26f0858ee78eb3923b2480ca162da298a3165c0e",
+        "android/app/proguard-rules.pro": "8ebac233c3587e727d6be5c9b7b99d486ca7ae6da65b01de82cc3678a86bc475",
+        "android/app/src/debug/AndroidManifest.xml": "30b0832ed8b92dfbd6ae2abfa939ccf26333d37600056b1572bd4a397a18a74b",
+        "android/app/src/profile/AndroidManifest.xml": "30b0832ed8b92dfbd6ae2abfa939ccf26333d37600056b1572bd4a397a18a74b",
+        "android/app/src/main/AndroidManifest.xml": "4114495e49239409933f6bb3be953b00f732e1d1b4ff023347b8296af20f36b2",
+        "android/app/src/main/kotlin/com/app/demo/DeviceMemoryBridge.kt": "40ddee5aafb84b0933ca392055f9bf8eb94a3da9ba7badfaafc4bdba604f08bc",
+        "android/app/src/main/kotlin/com/app/demo/MainActivity.kt": "5ea6741c032d46caa07ed66e206debc44923d0af036c01bbe8d275f905329c1c",
+        "android/app/src/main/kotlin/com/app/demo/RestoreCredentialBridge.kt": "623f61a4aba5ec0798c632f11f0d218eed2e50dbedb63e75c3b22502203decd1",
+        "android/app/src/main/kotlin/com/app/demo/RokctBackupAgent.kt": "626d4f65db2c83b0153a732d222dab5376211e3c978ae7b848fc97b0eeffe1b7",
+        "android/app/src/main/kotlin/com/app/demo/JuvoApplication.kt": "18870e8ca0b87482d3ad45fecc6211762fde11d19fd46791aba40a49b4d31d07",
+        "android/app/src/main/res/drawable-night/launch_background.xml": "ef1a461a1df0cce2a5e848a482f7d664bb93802f732df84109c56343608978f1",
+        "android/app/src/main/res/xml/backup_rules.xml": "a977a3552bb8c4facc634f4060ce11d623366bc310f5b119d390feb51b2f9409",
+        "android/app/src/main/res/xml/data_extraction_rules.xml": "ea351530e8fc2c342abc9798bca781ab3cabb9245b328b32ea113ed6bf1531ac",
+        "android/app/src/main/res/mipmap-hdpi/ic_launcher_monochrome.png": "bca944938ab4d6d9c0d393c9c0cd028cfc080699a2a011bed871698959404dbd",
+        "android/app/src/main/res/mipmap-hdpi/ic_launcher_background.png": "73b465c5a755e57287ed28cacf0fa85e7053de2adbc9da6fb0211ae2d238da7f",
+        "android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png": "fcad07ce2d5782283b3eb76b405b354706f73517e64ce220d77769b6ecca221d",
+        "android/app/src/main/res/mipmap-hdpi/ic_launcher.png": "64321a67da167b7b9cd5fca4b239f857c68dee6ee53b16827a8c0a09af391b5d",
+        "android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml": "26310833a35076dfe3bdcd9fa469c5c7e36c26623eaf6009bf2d450f779189a3",
+        "android/app/src/main/res/values-v31/styles.xml": "bfeec2a9c51d505a576e1c5a0e277b8b842b8eebc9c25029331f400a9656c422",
+        "android/app/src/main/res/values/strings.xml": "d4161c550e4a6acefcbda86b5cc8d2701d7cc78dac66b3bca10a5ffd20c37623",
+        "android/app/src/main/res/values/styles.xml": "92577b5b03b0092dcf299293386819ae5a63ba605f8dbc2c70954cda9dc12f2e",
+        "android/app/src/main/res/values/colors.xml": "368ce5fd7de6abc95025f951f62a0ef57c4427658d39a339cbcfe4a4bf97b19f",
+        "android/app/src/main/res/font/montserrat_extrabolditalic.ttf": "d38bac61eda8d8c002b1a852f5368901a085fbe1d844b5e0a149b674e22e2cdd",
+        "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_monochrome.png": "77829cb97eeb577a04ed868b5ab096d57d97021d759587e9ea8d52a11a689531",
+        "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_background.png": "78ec74a667d447540cc09adbbeaf7bc6b764c826eb869c4faf48c60c9c7bef7a",
+        "android/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png": "39dfa8084d6e9fe3a760e96b38fb367f739f15db0abf5fb163388824b279c3f6",
+        "android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png": "2d6d3a012e82b6001fccd71d6cb6a4cb792ed350e3554de28813b746809160be",
+        "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_monochrome.png": "186f631093d19c2318efcefb1e85f05e88c5df205977e76c40b968f5f5fc7129",
+        "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_background.png": "851453c6866e6fc35860af1c74d0423eedc016bd857b97baff07cc273610fbbc",
+        "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png": "dc11de7fba4524cb401fa17dd19624480e6a154b54d69a654b7e843c516eb6d7",
+        "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png": "61681dc7c78786248b6de4c3e17ed96c4ead7ddf2b03bd968db533a824ffdbb9",
+        "android/app/src/main/res/values-night-v31/styles.xml": "eb8fac0601f15000f75207d091e74ad8d540dfdd84743cfd63c17d9e7cb8eb82",
+        "android/app/src/main/res/raw/notification.wav": "e3e7b32ecf00872fa5da29d94b5738aaf9890981e39f640e083db9a522d961a6",
+        "android/app/src/main/res/mipmap-xhdpi/ic_launcher_monochrome.png": "e6699da3fe902c01565c2b8541465c72b000433bd00d32842c2496074ccfb6e3",
+        "android/app/src/main/res/mipmap-xhdpi/ic_launcher_background.png": "f328be58bcaaae10582370fb6fd7b73cd489de803f40775978181a3cfad3638d",
+        "android/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png": "753d9d243f90c3224b72dfc2e8f5e813f9f547c3bea03535ea0cd666217d5cae",
+        "android/app/src/main/res/mipmap-xhdpi/ic_launcher.png": "2b74d2d50e14bb3aa18032d753fa9fc93aa1c3ce8a8138bbc7a399e1347d4c84",
+        "android/app/src/main/res/drawable/launch_background.xml": "ef1a461a1df0cce2a5e848a482f7d664bb93802f732df84109c56343608978f1",
+        "android/app/src/main/res/drawable/background.png": "a4f454aa54cf2739d2f07a9409655fe19e4d5a5111d06a4696edebb51421cbde",
+        "android/app/src/main/res/drawable/notification_icon.png": "86be118ded33c610ac5ea52acf3c3037cc7933b3c92800c9653fa0f5b4cba585",
+        "android/app/src/main/res/values-night/styles.xml": "b06773e7484b4abded4b8cd067dbfebb39fe85d3e5ff54042d720487acbfb339",
+        "android/app/src/main/res/drawable-night-v21/launch_background.xml": "ef1a461a1df0cce2a5e848a482f7d664bb93802f732df84109c56343608978f1",
+        "android/app/src/main/res/drawable-v21/launch_background.xml": "ef1a461a1df0cce2a5e848a482f7d664bb93802f732df84109c56343608978f1",
+        "android/app/src/main/res/drawable-v21/background.png": "a4f454aa54cf2739d2f07a9409655fe19e4d5a5111d06a4696edebb51421cbde",
+        "android/app/src/main/res/drawable-v21/notification_icon.png": "86be118ded33c610ac5ea52acf3c3037cc7933b3c92800c9653fa0f5b4cba585",
+        "android/app/src/main/res/mipmap-mdpi/ic_launcher_monochrome.png": "e550816e8d258940f44f16b4fd8d33833968fa283f22cbacfa4ae2fa3c1d5e4e",
+        "android/app/src/main/res/mipmap-mdpi/ic_launcher_background.png": "e199d725783d30c7352539cc5e1ec4d40c8a7a3915bf167b845df5dc668cad18",
+        "android/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png": "187ad885f786cd68e0b1644c0e8c8f93cda8cc0a9b69dab3f32dc67f3d05034b",
+        "android/app/src/main/res/mipmap-mdpi/ic_launcher.png": "71173200365634ed9191441c01e97c26fec78df05250b396c7e8646fe0fc7e02",
+        "android/gradle/wrapper/gradle-wrapper.properties": "8f2a1883bb717a46f0269c557f732fda821084abc577d7776feba4ae41a622f6",
+        "ios/Podfile.lock": "b6fc80acd78f6b7324f179314fe33d48f3b8b96669ac72246b478544900f4f2c",
+        "ios/.gitignore": "83a3f5f8be2050c5003fe361e2086d79ee0cfe7d3fc3be82504a940e897b9439",
+        "ios/Podfile": "839b5d462e0fb36812235f1ba15da6b763b049caa59adb066f16ffad7223159d",
+        "ios/Runner/Runner-Bridging-Header.h": "1a8d11d01d1cc92c650c9c9ed35299240052d4683a15a719a2315ef44185e074",
+        "ios/Runner/Info.plist": "c22ccfceecf4f3d90ba495832ebfd31df4674855ffc851e626e4e24c6cfeac99",
+        "ios/Runner/AppDelegate.swift": "d00902a0dbdc2164257beecc44c5e08ede94aa28937ead23a434d1e4f99efe15",
+        "ios/Runner/Runner.entitlements": "aebada845ce0ff860fa6dafa58b310de50e905de485b9a161236216cb699c0a1",
+        "ios/Runner/Assets.xcassets/LaunchImage.imageset/README.md": "3d1343789d0d811a4530862df37d3fead7066ac40a466ac4225bd56fabe3695b",
+        "ios/Runner/Assets.xcassets/LaunchImage.imageset/Contents.json": "0305caab0a081d319e4f70c23635d7e56189d42bcc05180d3212aa1e9ad29664",
+        "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage.png": "edf35b0f1e15b7d24d7448b6b508bb0ffbfedec2ed7e43d47c3c9ec2f88ebcd2",
+        "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@3x.png": "edf35b0f1e15b7d24d7448b6b508bb0ffbfedec2ed7e43d47c3c9ec2f88ebcd2",
+        "ios/Runner/Assets.xcassets/LaunchImage.imageset/LaunchImage@2x.png": "edf35b0f1e15b7d24d7448b6b508bb0ffbfedec2ed7e43d47c3c9ec2f88ebcd2",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@3x.png": "97f9b5dbb52449997d6cb644ac7adc0e42c2cda873e641c658c42dbe572893c9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@3x.png": "02373e1f13fdb0d818636d08959f3287ee8e1042a3959a9c1a9d30a0e2ca6a89",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-83.5@2x~ipad.png": "59f3f4d2a51a421873b9950137a8419b45d54d0e0658dd86d5c4736f507ff1f1",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json": "e30deaa1fc4f632b2d75ee85989cda641f45056e6e997ed40dfd4246d33a5c62",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x~ipad.png": "4edeb36d690a4fb40d1b923564b5220ad0c82cccee873d8c49cf7ccdf6f17287",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29~ipad.png": "41b9440c36800caac47be04afac3135b699a6cb4ca432d6f22d0d0ed17cfa289",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@3x.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x.png": "c2c86a16df23add98a93d3ade928a8ad57e9cb1b755db309373067897f7f2a7e",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ipad.png": "4d4be6287e85f6be6fba34ac40a159c8a2e6e12c9d3e2b2f65fc9a50a5209488",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@3x~car.png": "b6b30212ca33e3d3a0f8293f5d143b04cc4cea9776a6ca6a9f5e429ec88d5273",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29.png": "41b9440c36800caac47be04afac3135b699a6cb4ca432d6f22d0d0ed17cfa289",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-60@2x~car.png": "f0d45eec5d5654768f5351247e6d10a5309365a4948d1aae1698294af30b2dcc",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@2x~ipad.png": "0b7dac7382a61ee5763a64cd3ebe31c9fb47ec7d0324c5ad6519225eb5ec1158",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20@2x~ipad.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon~ios-marketing.png": "904d4c9fdf1e5cfd99f8374a234126cb688b5561227097c168b799e774e01f85",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon@3x.png": "b6b30212ca33e3d3a0f8293f5d143b04cc4cea9776a6ca6a9f5e429ec88d5273",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-29@2x~ipad.png": "c2c86a16df23add98a93d3ade928a8ad57e9cb1b755db309373067897f7f2a7e",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40@2x.png": "4edeb36d690a4fb40d1b923564b5220ad0c82cccee873d8c49cf7ccdf6f17287",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-40~ipad.png": "0606dc265dd1b6dd08df03a90b7b9b1659c6d0d8133724cfa792c65e7aa50bf9",
+        "ios/Runner/Assets.xcassets/AppIcon.appiconset/AppIcon-20~ipad.png": "a0bbc103b3bc015ccec3ac6806de68d48a278726eb6a6d59855c37950cd591c1",
+        "ios/Runner/Assets.xcassets/LaunchBackground.imageset/Contents.json": "8acdea4656c6df21249f0a3532e3f2a4de6ad3686caa0a1861c87b0727a09593",
+        "ios/Runner/Assets.xcassets/LaunchBackground.imageset/background.png": "a4f454aa54cf2739d2f07a9409655fe19e4d5a5111d06a4696edebb51421cbde",
+        "ios/Runner/Base.lproj/LaunchScreen.storyboard": "3b6690c594d05ea86c078b478363498b2375b25610690025efb7389911d7dec5",
+        "ios/Runner/Base.lproj/Main.storyboard": "fd367b6c43006d61b730f674970dd48b9f662c8f2264e52ffc1558102a2c9f2d",
+        "ios/Runner.xcworkspace/contents.xcworkspacedata": "465e6de5660384eb6832e8078920ba6cd5305c445cb29a24a86a2fda4aa6b67e",
+        "ios/Runner.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings": "11b247bc6796892d67c9a821d18604db4dd6a880981b34f38460b9866e6b247f",
+        "ios/Runner.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": "dfa0f9bb85b95ccba9c6811adadf8cb407fb5d52088e89db83ebc308ec448542",
+        "ios/Flutter/AppFrameworkInfo.plist": "4844be22b72d16d6f6013ce5a2240728c730ef1fef9cf43a5c55198b18614802",
+        "ios/Flutter/Release.xcconfig": "75abb819a9de1e0e41c835e7307bc64a506cac25a9a5c0b0d8253fa1c3d5d422",
+        "ios/Flutter/Debug.xcconfig": "690b8a8b1ae15ddd29b241429963e971bbc6720ab22f154cf8cf6b085b6d4925",
+        "ios/Runner.xcodeproj/project.pbxproj": "34f1ab7574820c1e145c0e0f93a6226a296b565a7d068e4fb5e3ce0d08c58c19",
+        "ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme": "e3f54895b58046666249438ec61f298ba1601470d710751b775e5bc3e339c96a",
+        "ios/Runner.xcodeproj/project.xcworkspace/contents.xcworkspacedata": "7f3b00b5c3fdb45242d7b87e1e5c4e25d1fa8129a16c94295ecc4e8ea2235c5f",
+        "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings": "11b247bc6796892d67c9a821d18604db4dd6a880981b34f38460b9866e6b247f",
+        "ios/Runner.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist": "dfa0f9bb85b95ccba9c6811adadf8cb407fb5d52088e89db83ebc308ec448542",
+        "assets/svgs/ticket.svg": "13801b1f4de167b62b51f93b370c02bb278b8708a09f270f039e6dfbb0b5c7d2",
+        "assets/svgs/delivery_time.svg": "a125cc19652b774775a27ec8d632530ed624f5950817b853c7507ed79b3b9754",
+        "assets/svgs/delivery2.svg": "127690bf32f78617299505a810ea65116c06e0dd0fbaade9bba90dfa23fc494a",
+        "assets/svgs/contact.svg": "2db95dd1c4bdc16c1db9fb0814af3e9e27cda2ec390c07e1ad7a8d24fac1f5b4",
+        "assets/svgs/empty.svg": "145faca3f39dfdfbc1f5f9ddd7aad26c43cc58368e0cc9e878e1e1949b86a35a",
+        "assets/svgs/avatar.svg": "9f0bcfc64a25f82a1d39d7b200659862b6c856072df31906230e1601407353f7",
+        "assets/svgs/discount.svg": "f2950ddf871d045df485662fcdbd9a42c73dc6048a93e3d06566b78a1122cb2b",
+        "assets/svgs/pickUpFrom.svg": "3fa43dc1bf6aafe14bc4d5588e2e9a54cf9fdb4053bd16cf4f796f59f731dee8",
+        "assets/svgs/brand_logo_rounded.svg": "c0bacbe19e595cfa43e1c96621c9b62546c6970eb71bf48f44a62d5f8a3eaedf",
+        "assets/svgs/filter.svg": "99e051bcb1258f981bea16feec85d7596b7c373f8bd82cf5803388ccf9f042aa",
+        "assets/svgs/adress.svg": "774120f4d4cd801898852fc3062683a456a8c07bf8253a0c608fc5429f604697",
+        "assets/svgs/star.svg": "61afbcf2751aef31dc03b3bc1ea84ae4b4ebddaa8d6177fa2bb6e1457d8ed9c3",
+        "assets/svgs/orderTime.svg": "bb7cae032a9c24293657560178fc301a078f1414485288d8cf93a7cb1d210ff1",
+        "assets/svgs/delivery.svg": "48dc8f137f24c9d6ad90557e2a8b0f2aa53839e70361b0489f413780f7d320b8",
+        "assets/images/save.png": "f6885a79bd859f5979043fec5843c4b5053679bf0fe66ed51c9933d1c65ce778",
+        "assets/images/door.png": "c1ab409142c79303f40756d35e728ee7c91b6e8c548da0d6fb5ccf47c90c39f7",
+        "assets/images/order.png": "08558741d26a73cef0e93745cb9a8a3630ba716444adbed02453e9ee4ca15eec",
+        "assets/images/logo.png": "c94a0b944700f35fadf980456d5c73aa9e40e3db9686c105755dfad3a0ad1b48",
+        "assets/images/notFound.png": "bd8902d7a7b2b4f3d5701caf9ef252dc8765ab359f379c0dcb16f27ffe478adf",
+        "assets/images/app_logo.png": "7accc2b8b2f4d1414fc21b3fb3c9e018e10439fea02339efcd0660e5846369c9",
+        "assets/images/visa.png": "1719f035b3e01fb0efd7c300c7fad77e14ec7eac4bf63a2b7a6606cfd6c1f197",
+        "assets/images/splash.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/card.png": "c490bd23f7566c1d56700cdcf4ec8c095be829237d8ca5845585c3bfe773ad79",
+        "assets/images/fast.png": "76bdf5d241ba5b8c515233349174e5cbbe0984a9e52fb5834bbef008b4b3ddfc",
+        "assets/images/splash1.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/cardBg.png": "539b76b460c9376e04d1794a2af17fd5894ec9272761dc0d58fe6412c0c1156d",
+        "assets/images/set.png": "f944227f8cde814049a888a732bdbe255b2a32ec3a1629ea2a1127142bdef5a7",
+        "assets/images/splash2.png": "15f17d2db026f6d02d4b639aa1ed7c8930a10952e09da8607c52f4c4443cc122",
+        "assets/images/delivery.png": "bfba72635a86d7b69bca1774302e2f07cfe297b82fdcc7c45d1eae0915fbf5d1",
+        "assets/audio/wrong.wav": "a2352725dcffd5505dec676a26db5ef2f299cb5ae4340a91ecd1cef55637223f",
+        "assets/audio/tap.wav": "577a7e6beb2958269cc5daecb2529cad154ba9cebe5eff988530affb9aff5eb0",
+        "assets/lottie/processing.json": "a51cd2d2b8da4ef10ecaab35141b0f3e350f2b0ca6651d1a9e0a3857306d8b48",
+        "assets/lottie/girl_empty.json": "0bcdf98146d29714171085550fc4db6bb106236ccdad499ad696fb4acd3957bb",
+        "assets/lottie/not-found.json": "7febd84a50e1d738844b06c7b886bab9a4343eae6403cc11e2c3bd8f7821df6a",
+        "assets/lottie/notification_empty.json": "4910696b915ba2f7c1302460039c7f78c17782231eaa4887360710b364d7ad62",
+        "assets/lottie/not_found_page.json": "680a132bc530ba49e09ebd74d76bfc1ad35e7611d186c72d800ced8ea5a2a111",
+        "lib/presentation/theme/theme.dart": "dccd0527934c068d0b8ef48d7d0677d068d1054e7fcc1e1eea1f6682912bfcd5",
+        "lib/presentation/theme/app_style.dart": "a45367fab06abafa465a15d659d631e344f3c1badc06a8880b2298eaf063c535"
+      },
+      "routes": [
+        {
+          "path": "/",
+          "page": "SplashRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/no-connection",
+          "page": "NoConnectionRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/maintenance",
+          "page": "MaintenanceRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        },
+        {
+          "path": "/generic-profile",
+          "page": "GenericProfileRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/route_pages.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "replaceSplashRoute",
+          "body": "context.router.replace(SplashRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceNoConnectionRoute",
+          "body": "context.router.replace(NoConnectionRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "replaceMaintenanceRoute",
+          "body": "context.router.replace(MaintenanceRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "pushGenericProfileRoute",
+          "body": "context.router.push(GenericProfileRoute());",
+          "imports": [
+            "import 'package:auto_route/auto_route.dart';",
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [],
+      "database": {
+        "_comment": "No 'tables' key on purpose. base_sdk's own tables (KeyValueTable, OutboxTable, IdMappingsTable) are declared directly in the @DriftDatabase annotation in lib/src/database/app_database.dart, and the installer COPIES every table source named here into base_sdk's own package to import relatively - so listing them would compile two copies of each class. Only the migration is declared.",
+        "_comment_migration": "THE MIGRATION VERSION NUMBER IS SHARED WITH EVERY OTHER SDK IN THE APP, AND IS NOT THIS SDK'S TO COUNT ALONE. sdk_installer_base.py update_database_registration() sets the composed AppDatabase's schemaVersion to the MAXIMUM version any composed manifest declares, while each SDK writes its own `if (from < N)` guard into the one shared onUpgrade - one namespace, no allocator. Drift calls onUpgrade only when schemaVersion is GREATER than the stored user_version, so a number at or below the running maximum runs nothing at all on a device that is already there, and the column this step adds would simply never appear (productivity_sdk lost its notes table to exactly this, and this manifest's number is chosen the way that manifest's comment says to). Two further traps are specific to base: the composer SUBSTITUTES the schemaVersion getter in app_database.dart, so a base-owned number written only in Dart is erased at compose time; and max_version is only raised inside the installer's `if version and step` branch, so a version declared without a step raises nothing. Hence both, declared here. VERSIONS READ ACROSS THE FLEET BEFORE CLAIMING 19 (every manifest.json outside a .rokct/cache in every repo reachable from this workspace, read at their current main): radio_sdk 18 (agent/radio/dart), productivity_sdk 17 (productivity/productivity/dart), auth_sdk 16 (Users/auth/dart), agent_sdk 15 (agent/agent/dart), replay_sdk 15 (agent/replay/dart), subscriptions_sdk 15 (agent/subscriptions/dart), polaris_sdk 13 (corporate/polaris/dart), fav_sdk 12 (agent/fav/dart); no other manifest declares a database.migration at all - base_sdk, launch_sdk, comms_sdk and telemetry_sdk in this repo included, until now. 19 is above all of them. NOTE for whoever reads this next: radio_sdk's 17 and productivity_sdk's 17 are a LIVE COLLISION on that number (radio's own comment still records productivity at 14), which is not this PR's to fix but is the same defect all of this text is about. The step is idempotent - ensureOwnerScopeColumns() checks for the column before touching anything - and beforeOpen in app_database.dart calls it on every open as a floor, so a device that somehow skips this step still gets the column rather than throwing on its first read.",
+        "migration": {
+          "version": 19,
+          "step": "if (from < 19) { await ensureOwnerScopeColumns(); }"
+        }
+      },
+      "app_assets": [
+        "assets/audio/tap.wav",
+        "assets/audio/wrong.wav",
+        "assets/images/app_logo.png",
+        "assets/images/card.png",
+        "assets/images/cardBg.png",
+        "assets/images/delivery.png",
+        "assets/images/door.png",
+        "assets/images/fast.png",
+        "assets/images/logo.png",
+        "assets/images/notFound.png",
+        "assets/images/order.png",
+        "assets/images/save.png",
+        "assets/images/set.png",
+        "assets/images/splash.png",
+        "assets/images/splash1.png",
+        "assets/images/splash2.png",
+        "assets/images/visa.png",
+        "assets/lottie/girl_empty.json",
+        "assets/lottie/not-found.json",
+        "assets/lottie/not_found_page.json",
+        "assets/lottie/notification_empty.json",
+        "assets/lottie/processing.json",
+        "assets/svgs/adress.svg",
+        "assets/svgs/avatar.svg",
+        "assets/svgs/brand_logo_rounded.svg",
+        "assets/svgs/contact.svg",
+        "assets/svgs/delivery.svg",
+        "assets/svgs/delivery2.svg",
+        "assets/svgs/delivery_time.svg",
+        "assets/svgs/discount.svg",
+        "assets/svgs/empty.svg",
+        "assets/svgs/filter.svg",
+        "assets/svgs/orderTime.svg",
+        "assets/svgs/pickUpFrom.svg",
+        "assets/svgs/star.svg",
+        "assets/svgs/ticket.svg"
+      ]
+    },
+    "auth_sdk": {
+      "version": "1.16.7",
+      "files": {
+        "lib/presentation/routes/auth_route_pages.dart": "3e233a59b85db05da0382fc093967a67087669cbfa9aadabff510c775742e892",
+        "lib/presentation/routes/registration_step_pages.dart": "d18f7e35878721c688c4f0964db42c97148e1f2e9d225cd1a6bb7490e2628347",
+        "lib/presentation/routes/auth_session_policy.dart": "9524d696f956a99c2964ce0866cbab0cb282e868247d5f08b050e94bb9f5df5a",
+        "assets/demo/auth/api.user.forgot_password_confirm.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.update_password.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/auth/api.user.login.json": "69e2eac93cbb55cec718685996a364381283394a4f7776acc836107cbde82e39",
+        "assets/demo/auth/api.user.verify_phone_code.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.resend_verification_email.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/auth/tenant.api.verify_my_email.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e",
+        "assets/demo/auth/api.user.forgot_password.json": "b164450bd2a149d134a2dce464eda7b93856052f1269af827628ab0c6bf337f4",
+        "assets/demo/auth/api.user.login_with_google.json": "1d5759f03e640a9c380d8900c36c4c5873498e4a75e9e4658de8adf9b912d931",
+        "assets/demo/auth/api.user.send_phone_verification_code.json": "b164450bd2a149d134a2dce464eda7b93856052f1269af827628ab0c6bf337f4",
+        "assets/demo/auth/api.user.register_user.json": "8b231a14101c8c1587e6ea6e958a3de207f54ec27ee71149fba3c8ece4d1049e"
+      },
+      "routes": [
+        {
+          "path": "/login",
+          "page": "LoginRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/register",
+          "page": "RegisterRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/register-confirmation",
+          "page": "RegisterConfirmationRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/reset-password",
+          "page": "ResetPasswordRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/auth_route_pages.dart"
+        },
+        {
+          "path": "/registration-steps",
+          "page": "RegistrationStepsRoute.page",
+          "type": "MaterialRoute",
+          "import": "package:${package}/presentation/routes/registration_step_pages.dart"
+        }
+      ],
+      "app_routes": [
+        {
+          "method": "replaceLoginRoute",
+          "body": "context.router.replace(LoginRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        },
+        {
+          "method": "pushLoginRoute",
+          "body": "context.router.push(LoginRoute());",
+          "imports": [
+            "import 'package:${package}/presentation/routes/app_router.dart';"
+          ]
+        }
+      ],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "auth_pending_otp_gate",
+          "order": 0,
+          "body": "PendingOtpGate.install();"
+        },
+        {
+          "id": "auth_restore_credential_gate",
+          "order": 1,
+          "body": "RestoreCredentialGate.install(); SessionEndHooks.register('restore_credentials', RestoreCredentialGate.clear);"
+        },
+        {
+          "id": "auth_en_bundled_translations",
+          "order": 2,
+          "body": "BundledTranslations.register('en', kAuthEnTranslations);",
+          "imports": [
+            "import 'package:base_sdk/src/services/bundled_translations.dart';",
+            "import 'package:auth_sdk/src/translations/auth_en_translations.dart';"
+          ],
+          "_comment": "Registers this SDK's bundled English map into base_sdk's BundledTranslations registry at boot (lms_sdk's 'af' hook is the precedent). base_sdk bundles no 'en' map because English normally survives through the humanized-key fallback, but that only holds for keys named after their copy: reset_password_text humanized to the literal \"Reset password text\" on every app shell's reset-password sheet, because demo builds take their served map from comms_sdk's MockSettingsRepository (a handful of rows that never carried this key). Backend-served translation rows still win; the map is only the offline/unseeded fallback consulted before the humanized-key fallback. Imports are declared explicitly (src paths, like lms_sdk) because neither symbol is exported by the auth_sdk barrel every composed main.dart already imports. Requires a base_sdk with bundled_translations.dart (the bundled-af wave)."
+        }
+      ],
+      "database": {
+        "tables": [
+          {
+            "class": "OfflineUsersTable",
+            "import": "package:auth_sdk/src/common/infrastructure/database/offline_user_table.dart"
+          }
+        ],
+        "migration": {
+          "version": 16,
+          "step": "if (from < 16) { await m.createTable(offlineUsersTable); }"
+        }
+      },
+      "app_assets": [
+        "assets/demo/auth/"
+      ]
+    },
+    "users_sdk": {
+      "version": "1.5.1",
+      "files": {
+        "assets/demo/users/api.user.delete_account.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.get_user_addresses.json": "77712b6ec35f52696d1db69d1eb89c75da84af4d03d04dc5a5207adbcf82cfc5",
+        "assets/demo/users/api.user.set_active_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.update_user_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.update_profile_image.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.update_password.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.get_user_profile.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4",
+        "assets/demo/users/api.user.search_user.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.get_referral_details.json": "0cdbf9b57c1c847eb6b0a167f394afd056b6f7e368721c5f7a6bb709e3d5f4fa",
+        "assets/demo/users/api.user.register_device_token.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.logout.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.delete_user_address.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/users/api.user.add_user_address.json": "94040fd50c440c6ddcbbe56ce155489e70d4ae918498599ac55082d238d799ad",
+        "assets/demo/users/api.user.update_user_profile.json": "ecd6d852c7fc618f171e6b20bcbdef6d4b848e68028fb78cb02fc29f12a86de4"
+      },
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": [],
+      "app_assets": [
+        "assets/demo/users/"
+      ]
+    },
+    "comms_sdk": {
+      "version": "1.22.2",
+      "files": {
+        "assets/demo/comms/api.notification.get_user_notifications.json": "0345797eb7c9a8572a37748670cd59d03232674f0df8b9bdb5ae61d77a1c07eb",
+        "assets/demo/comms/api.language.get_languages.json": "6933ca5d43e6ce955b43f238b728f27e5444585699da1d722e60cae67a5bc16e",
+        "assets/demo/comms/api.notification.read_all_notifications.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/comms/api.translation.get_mobile_translations.json": "ad9606c0d503b0c27150d2a0c0a82ddf44037a34619f27cbdd7a050d6f7a26fa",
+        "assets/demo/comms/api.notification.get_notification_settings.json": "a7b60d72591768e25c273e27972f15702efd847212ce283c982ba5aba1d45043",
+        "assets/demo/comms/api.notification.get_notification_count.json": "e81366a1ea9400e3b0cfd014aabfbdbc12cfea74d7335a64c9feda2a6025318f",
+        "assets/demo/comms/api.page.get_page.json": "993f0d1ce3045b465bedbfd89c5aabf5993f80a4a10f1c93e0fc707c5f535cd9",
+        "assets/demo/comms/api.notification.read_one_notification.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed",
+        "assets/demo/comms/api.system.get_global_settings.json": "bd79ef4bf926cae6e9cf15c508f2aa30b0abc3af7bd98fbe5056ee8d18dee941",
+        "assets/demo/comms/api.system.get_currencies.json": "cb70e135ab501697b3c14a767decf891e029f2195fea5f40ae70e00cd64ab95b",
+        "assets/demo/comms/api.admin_content.get_admin_faqs.json": "b6224855d5a5496f8aaf3fd07e595fef6bf9071c22a110a444ce4ffe55fd0cda",
+        "assets/demo/comms/api.notification.update_notification_settings.json": "38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed"
+      },
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [
+        {
+          "method": "languageScreen",
+          "params": "{required VoidCallback onSave}",
+          "body": "return LanguageScreen(onSave: onSave);",
+          "imports": [
+            "import 'package:comms_sdk/src/common/presentation/pages/setting/language_page.dart';"
+          ]
+        }
+      ],
+      "di_hooks": [],
+      "boot_hooks": [
+        {
+          "id": "comms-live-activity-sink",
+          "order": 40,
+          "body": "LiveActivities.instance.sink ??= DeviceLiveActivitySink();",
+          "_comment": "Live notifications (design approved 2026-09-26). Registers the device sink into base_sdk's LiveActivities (base_sdk >= 1.76.0), so orders, delivery and lms publish snapshots without importing comms_sdk. Registration only: nothing is drawn until an adopter publishes. No 'imports' entry: main.dart already imports base_sdk and comms_sdk (which exports DeviceLiveActivitySink)."
+        },
+        {
+          "id": "comms-push-permission-on-sign-in",
+          "order": 30,
+          "body": "SessionStartHooks.register(PushPermissionPrompt.hookId, PushPermissionPrompt.onSessionStart);",
+          "_comment": "Ray, 2026-09-25: ask for notification permission after a successful sign-in, in every app that composes comms_sdk (before 1.18.0 only merchants' manager shell and delivery's driver home asked; supacharge, paas_customer and the rest never did). Subscribes PushPermissionPrompt to base_sdk's SessionStartHooks (base_sdk >= 1.75.0), which auth_sdk >= 1.15.0 runs once a session is established; neither SDK depends on the other. PushPermissionPrompt skips demo sessions (DemoSession.demoActive), asks at most once per install (a LocalStorage JSON flag set only once the OS was actually asked), and goes through PushPermissionService, so platform guard, fail-open catch and in-flight de-duplication all still apply. Registration only: nothing runs at boot. No 'imports' entry: every composed main.dart already imports package:base_sdk/base_sdk.dart and package:comms_sdk/comms_sdk.dart (which exports PushPermissionPrompt) in its @generated-sdk-imports block."
+        },
+        {
+          "id": "comms-firebase-fcm-boot",
+          "order": 10,
+          "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    if (Firebase.apps.isEmpty) {\n      await Firebase.initializeApp();\n    }\n    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);\n  } catch (e) {\n    debugPrint('Firebase boot skipped: $e');\n  }\n}",
+          "imports": [
+            "import 'package:flutter/foundation.dart';",
+            "import 'package:firebase_core/firebase_core.dart';",
+            "import 'package:firebase_messaging/firebase_messaging.dart';",
+            "import 'package:comms_sdk/src/common/services/firebase_background_handler.dart';"
+          ]
+        },
+        {
+          "id": "comms-desktop-notification-poller-boot",
+          "order": 20,
+          "body": "if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {\n  WidgetsBinding.instance.addPostFrameCallback((_) {\n    try {\n      DesktopNotificationPoller.instance.start();\n    } catch (e) {\n      debugPrint('Desktop notification poller boot skipped: $e');\n    }\n  });\n}",
+          "imports": [
+            "import 'package:flutter/foundation.dart';",
+            "import 'package:comms_sdk/src/common/services/desktop_notification_poller.dart';"
+          ],
+          "_comment": "Windows notification delivery, POS parity (1.6.0): firebase_messaging has no Windows implementation, so the FCM hook above deliberately excludes Windows and composed Windows exes shipped with NO notification path at all. This hook starts comms' DesktopNotificationPoller (10s REST count polling + looping POS notification.wav + ValueNotifier badge feed - see the service's doc comment) on Windows only. The start is deferred to addPostFrameCallback because boot-hook bodies run BEFORE LocalStorage.init() and the sdk-di block in the generated main.dart: by first frame both are done, and runApp is never delayed by a poll. Fail-open try/catch like the FCM hook - a boot failure debugPrints instead of blanking the app. WidgetsBinding resolves via main.dart's static material import; foundation dedupes with the FCM hook's wiring import. Toast layer (still 1.6.0, same unmerged PR): poller.start() also initializes LocalNotifications fail-open (flutter_local_notifications 19.x WindowsInitializationSettings - stable hardcoded GUID, APP_NAME/WINDOWS_AUMID dart-defines for branding, works unpackaged; MSIX identity optional host-side) and each count increase raises a native toast via LocalNotifications.show() alongside the sound - no hook body change needed, the toast path lives entirely inside the service."
+        },
+        {
+          "id": "comms-push-message-dispatch",
+          "order": 15,
+          "body": "if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS)) {\n  try {\n    PushMessageDispatcher.instance.start();\n  } catch (e) {\n    debugPrint('Push message dispatch skipped: $e');\n  }\n}",
+          "imports": [
+            "import 'package:flutter/foundation.dart';"
+          ],
+          "_comment": "Feeds received FCM messages into base_sdk's PushMessages (base_sdk >= 1.79.0) by data['type'], so a feature SDK handles its own pushes without importing comms_sdk (orders_sdk registers 'order_status' for its ActiveOrderTracker). Foreground messages and taps that open the app dispatch at once; a message that arrives while the app is suspended or closed is queued by firebaseMessagingBackgroundHandler and replayed at start and on resume. Runs after comms-firebase-fcm-boot (order 10). comms_sdk exports PushMessageDispatcher, so no package import is needed."
+        }
+      ],
+      "app_assets": [
+        "assets/demo/comms/"
+      ],
+      "platform_permissions": {
+        "android": [
+          "android.permission.POST_NOTIFICATIONS",
+          "android.permission.VIBRATE"
+        ],
+        "ios": {}
+      }
+    },
+    "telemetry_sdk": {
+      "version": "1.0.1",
+      "files": {},
+      "routes": [],
+      "app_routes": [],
+      "onboarding_slides": [],
+      "registration_steps": [],
+      "embedded_widgets": [],
+      "di_hooks": [],
+      "boot_hooks": []
+    }
+  },
+  "sdk_cache": {
+    "agent": {
+      "version": "1.2.0",
+      "source_hash": "df1734a00ecbeb90"
+    },
+    "base": {
+      "version": "1.85.0",
+      "source_hash": "19c09e947ed89556"
+    },
+    "comms": {
+      "version": "1.22.2",
+      "source_hash": "091954d447371396"
+    },
+    "telemetry": {
+      "version": "1.0.1",
+      "source_hash": "fd7bfe64e9bc8d42"
+    },
+    "auth": {
+      "version": "1.16.7",
+      "source_hash": "7a68e7eae06db259"
+    },
+    "users": {
+      "version": "1.5.1",
+      "source_hash": "001df2d707de4cb3"
+    }
+  }
+}

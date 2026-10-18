@@ -1,0 +1,339 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+
+import 'package:base_sdk/src/application/profile/profile_host_capabilities.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_action_item.dart';
+import 'package:base_sdk/src/presentation/pages/profile/profile_section.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/base_profile_footer.dart';
+
+/// Cross-SDK section registry backing the generic profile page.
+///
+/// Feature SDKs must not import each other (ADR-005), so each SDK registers
+/// its sections here at bootstrap — typically a `di_hooks` manifest entry
+/// calling `ProfileSectionRegistry.I.register(...)` — and the page composes
+/// whatever the installed SDK set contributed. Unlike [EmbeddedWidgets],
+/// the contributor set is open-ended, so this is a runtime collection
+/// rather than a fixed method surface.
+class ProfileSectionRegistry {
+  ProfileSectionRegistry._();
+
+  static final ProfileSectionRegistry I = ProfileSectionRegistry._();
+
+  final Map<String, ProfileSection> _sections = {};
+
+  final Map<ProfileHeaderSlot, ProfileHeaderSlotContent> _headerSlots = {};
+
+  final Map<String, ProfileTopRowAction> _topRowActions = {};
+
+  /// Layout-agnostic action buttons, grouped by page key — see
+  /// [registerAction].
+  final Map<String, Map<String, ProfileActionItem>> _actions = {};
+
+  /// Header edit affordance; hidden while unset (and while
+  /// [editProfileDetailBuilder] is unset too). Registered by the shell or
+  /// an SDK that owns the edit-profile flow. On planes the pencil tries
+  /// [editProfileDetailBuilder] first and calls this only when the host
+  /// cannot open a detail — so this stays the phone's flow (a sheet, a
+  /// pushed route) and the ONLY flow while no detail is registered.
+  void Function(BuildContext context)? onEditProfile;
+
+  /// The identity of the edit-profile detail in a plane host's flow — the
+  /// id [ProfileSectionNavigator.openEditProfile] opens
+  /// [editProfileDetailBuilder] under, and the host's
+  /// [ProfileSectionNavigator.openSectionId] while it is open.
+  static const String editProfileDetailId = 'base.edit_profile';
+
+  /// The edit-profile form as a DETAIL PANE (Ray 2026-09-08, the sheet
+  /// fork ruling: "sheet = PHONE, plane widths get a pane"). Null (the
+  /// default) means the pencil and every edit-profile entry point run
+  /// [onEditProfile] everywhere, exactly as before this field existed.
+  /// Set at bootstrap (`di_hooks`) by the SDK that owns the edit flow:
+  /// on planes the identity-card pencil then opens this in the host's
+  /// detail plane (the last plane) instead of running [onEditProfile],
+  /// and an SDK's own "Profile settings" row reaches the same pane through
+  /// [ProfileSectionNavigator.openEditProfile]. The widget is embedded in
+  /// a plane the host owns: render the form only — no sheet chrome, app
+  /// bar or back of its own — and leave the pane with
+  /// [ProfileSectionNavigator.close] once saved. Phones never see it: a
+  /// phone route has no host seam, so the pencil runs [onEditProfile]
+  /// there as it always did.
+  WidgetBuilder? editProfileDetailBuilder;
+
+  /// Sign-out affordance — the top row's icon-only round red button;
+  /// hidden while unset. Invoked after the user confirms the logout
+  /// dialog — the callback owns the actual sign-out and post-logout
+  /// navigation.
+  void Function(BuildContext context)? onLogout;
+
+  /// The floating nav a PUSHED routed profile draws on a phone. Null (the
+  /// default) draws the back-only pill. A composition whose profile is
+  /// pushed over its home (the launcher) sets its own full nav here, so the
+  /// profile shows the same bar the home does. Profiles hosted as a shell
+  /// tab never read it.
+  WidgetBuilder? pushedProfileNavBuilder;
+
+  /// Overridable top-row page title. Null (the default) renders the
+  /// host's own title — the translated `profile` key. An SDK that owns
+  /// the profile surface may set a different title at bootstrap.
+  String? pageTitle;
+
+  /// The section whose detail a plane host opens BY DEFAULT: when the
+  /// profile lands on a three-plane screen the host seeds this section's
+  /// [ProfileSection.detailBuilder] into the third plane, so the plane is
+  /// never an empty stage (Ray 2026-09-07). Null (the default) seeds
+  /// nothing — the third plane stays the bare stage it always was. Set at
+  /// bootstrap (`di_hooks`) by the SDK that owns the profile surface, next
+  /// to the section's own [register] call; a section without a
+  /// `detailBuilder` cannot be the default ([defaultSection] is null then).
+  String? defaultSectionId;
+
+  /// Registers [section]. Duplicate id: first registration wins and the
+  /// duplicate is dropped loudly — the same semantics as the installer's
+  /// embedded_widgets/onboarding_slides composers.
+  void register(ProfileSection section) {
+    if (_sections.containsKey(section.id)) {
+      assert(() {
+        debugPrint(
+            "ProfileSectionRegistry: duplicate section id '${section.id}' "
+            'ignored - the first registration wins.');
+        return true;
+      }());
+      return;
+    }
+    _sections[section.id] = section;
+  }
+
+  /// Whether a section with [id] is already registered.
+  bool contains(String id) => _sections.containsKey(id);
+
+  /// The registered section with [id], or null while none has it.
+  ProfileSection? section(String id) => _sections[id];
+
+  /// The section named by [defaultSectionId], or null while no default is
+  /// named, the named section is unregistered, or it declares no
+  /// [ProfileSection.detailBuilder] (there is nothing to seed then).
+  ProfileSection? get defaultSection {
+    final id = defaultSectionId;
+    if (id == null) return null;
+    final section = _sections[id];
+    return section?.detailBuilder == null ? null : section;
+  }
+
+  /// Claims [slot] of the identity header card with SDK-supplied content.
+  ///
+  /// The header card renders the slots around the identity row (see
+  /// [ProfileHeaderSlot]); a header with no slots claimed renders exactly
+  /// as it did before slots existed. Like [register], registration happens
+  /// at bootstrap (`di_hooks`), and a slot claimed twice keeps its first
+  /// registration — the duplicate is dropped loudly. [visible] follows
+  /// [ProfileSection.visible]'s contract: resolved once when the page
+  /// mounts; `false` or a throw keeps the slot empty. [requires] follows
+  /// [ProfileSection.requires]: the slot stays empty wherever one of the
+  /// named facades is unregistered.
+  void registerHeaderSlot(
+    ProfileHeaderSlot slot, {
+    required String id,
+    required Widget Function(BuildContext context) builder,
+    Future<bool> Function()? visible,
+    Set<ProfileFacade> requires = const {},
+  }) {
+    final existing = _headerSlots[slot];
+    if (existing != null) {
+      assert(() {
+        debugPrint(
+            "ProfileSectionRegistry: header slot '${slot.name}' already "
+            "claimed by '${existing.id}' - '$id' ignored, the first "
+            'registration wins.');
+        return true;
+      }());
+      return;
+    }
+    _headerSlots[slot] = ProfileHeaderSlotContent(
+      id: id,
+      builder: builder,
+      visible: visible,
+      requires: requires,
+    );
+  }
+
+  /// The content claiming [slot], or null while the slot is unclaimed.
+  ProfileHeaderSlotContent? headerSlot(ProfileHeaderSlot slot) =>
+      _headerSlots[slot];
+
+  /// Whether [slot] of the identity header is already claimed.
+  bool containsHeaderSlot(ProfileHeaderSlot slot) =>
+      _headerSlots.containsKey(slot);
+
+  /// Registers a compact action for the host's top controls row (rendered
+  /// between the page title and the host-owned theme toggle / sign-out).
+  ///
+  /// Like [register], registration happens at bootstrap (`di_hooks`), and
+  /// a duplicate [id] keeps its first registration — the duplicate is
+  /// dropped loudly. Actions render in [order] (lower first, ties broken
+  /// by id).
+  void registerTopRowAction({
+    required String id,
+    required Widget Function(BuildContext context) builder,
+    int order = 0,
+  }) {
+    if (_topRowActions.containsKey(id)) {
+      assert(() {
+        debugPrint(
+            "ProfileSectionRegistry: duplicate top-row action id '$id' "
+            'ignored - the first registration wins.');
+        return true;
+      }());
+      return;
+    }
+    _topRowActions[id] =
+        ProfileTopRowAction(id: id, builder: builder, order: order);
+  }
+
+  /// Whether a top-row action with [id] is already registered.
+  bool containsTopRowAction(String id) => _topRowActions.containsKey(id);
+
+  /// Registers [item] into the action [group] of one profile page.
+  ///
+  /// [group] is a page key (e.g. `'marketplace.customer'`,
+  /// `'lms.student'`) — the page-owning SDK renders the group through a
+  /// `ProfileActionsSection` and picks the layout there; contributors
+  /// declare only the button. Like [register], registration happens at
+  /// bootstrap (`di_hooks`), and a duplicate [ProfileActionItem.id]
+  /// within the group keeps its first registration — the duplicate is
+  /// dropped loudly. Items render in [ProfileActionItem.order] (lower
+  /// first, ties broken by id).
+  void registerAction({
+    required String group,
+    required ProfileActionItem item,
+  }) {
+    final groupItems = _actions.putIfAbsent(group, () => {});
+    if (groupItems.containsKey(item.id)) {
+      assert(() {
+        debugPrint(
+            "ProfileSectionRegistry: duplicate action id '${item.id}' in "
+            "group '$group' ignored - the first registration wins.");
+        return true;
+      }());
+      return;
+    }
+    groupItems[item.id] = item;
+  }
+
+  /// Whether [group] already holds an action with [id].
+  bool containsAction(String group, String id) =>
+      _actions[group]?.containsKey(id) ?? false;
+
+  /// The actions registered into [group], sorted by
+  /// [ProfileActionItem.order] with ties broken by id — the same
+  /// deterministic ordering as [sections]. Empty for a group nothing
+  /// registered into.
+  List<ProfileActionItem> actions(String group) {
+    final list = (_actions[group]?.values ?? const <ProfileActionItem>[])
+        .toList()
+      ..sort((a, b) {
+        final byOrder = a.order.compareTo(b.order);
+        return byOrder != 0 ? byOrder : a.id.compareTo(b.id);
+      });
+    return list;
+  }
+
+  /// Registered top-row actions sorted by [ProfileTopRowAction.order],
+  /// ties broken by id — the same deterministic ordering as [sections].
+  List<ProfileTopRowAction> get topRowActions {
+    final list = _topRowActions.values.toList()
+      ..sort((a, b) {
+        final byOrder = a.order.compareTo(b.order);
+        return byOrder != 0 ? byOrder : a.id.compareTo(b.id);
+      });
+    return list;
+  }
+
+  /// Registers base_sdk's default sections for every slot no SDK claimed.
+  ///
+  /// Called by the generic profile host when it mounts — after every
+  /// bootstrap (`di_hooks`) registration has run — so SDK registrations
+  /// always precede it. Today there is one default: the `base.footer`
+  /// meta row ([BaseProfileFooter]: app name, version, Online/Offline
+  /// dot, [AppUsageBadge]-style usage figures) at order
+  /// [BaseProfileFooter.sectionOrder].
+  ///
+  /// Because duplicate ids are first-wins and this runs last, an SDK
+  ///   * overrides the default by registering its own section with id
+  ///     [BaseProfileFooter.sectionId] at bootstrap, and
+  ///   * hides the footer slot entirely by registering a
+  ///     [BaseProfileFooter.sectionId] section whose `visible` gate
+  ///     resolves false.
+  ///
+  /// Idempotent: calling it again never duplicates a default.
+  void ensureDefaultSections() {
+    // Transitional guard (no SDK import — a string id only): marketplace_sdk
+    // < 1.6.0 still ships its own full footer, meta row included, under the
+    // legacy 'marketplace.footer' id. Skip the default there so the row is
+    // not rendered twice while base_sdk 1.26 and marketplace_sdk 1.6 roll
+    // out independently. Remove once no composed app pins marketplace_sdk
+    // < 1.6.0.
+    if (contains('marketplace.footer')) return;
+
+    if (!contains(BaseProfileFooter.sectionId)) {
+      register(ProfileSection(
+        id: BaseProfileFooter.sectionId,
+        order: BaseProfileFooter.sectionOrder,
+        builder: (context) => const BaseProfileFooter(),
+      ));
+    }
+  }
+
+  /// Registered sections sorted by [ProfileSection.order], ties broken by
+  /// id so the layout is deterministic across bootstraps.
+  List<ProfileSection> get sections {
+    final list = _sections.values.toList()
+      ..sort((a, b) {
+        final byOrder = a.order.compareTo(b.order);
+        return byOrder != 0 ? byOrder : a.id.compareTo(b.id);
+      });
+    return list;
+  }
+
+  /// Last-known visibility-gate answers across mounts of the profile page,
+  /// keyed by section id. A re-mounted profile (back from a pushed route,
+  /// a tab swipe) starts from what the gates said last time instead of
+  /// from "hidden", so gated rows do not pop in a frame later and shift
+  /// the menu (Ray, 2026-09-23). The page still asks every gate again on
+  /// each mount and a changed answer lands as before; the first mount in a
+  /// process has no memory and keeps the fail-closed start.
+  final Map<String, bool> lastGateResults = {};
+
+  /// The header-slot counterpart of [lastGateResults].
+  final Map<ProfileHeaderSlot, bool> lastHeaderSlotGateResults = {};
+
+  @visibleForTesting
+  void reset() {
+    lastGateResults.clear();
+    lastHeaderSlotGateResults.clear();
+    _sections.clear();
+    _headerSlots.clear();
+    _topRowActions.clear();
+    _actions.clear();
+    onEditProfile = null;
+    editProfileDetailBuilder = null;
+    onLogout = null;
+    pushedProfileNavBuilder = null;
+    pageTitle = null;
+    defaultSectionId = null;
+  }
+}

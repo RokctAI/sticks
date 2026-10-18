@@ -1,0 +1,203 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+// lib/src/presentation/pages/profile/widgets/base_profile_footer.dart
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:remixicon/remixicon.dart';
+
+import 'package:base_sdk/src/presentation/pages/profile/profile_host_scope.dart';
+import 'package:base_sdk/src/presentation/pages/profile/widgets/app_usage_badge.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
+import 'package:base_sdk/src/services/app_connectivity.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/services/demo_session.dart';
+
+/// The shared profile-footer meta row: app name, app version (with build
+/// number in debug), the backend-probe Online/Offline dot and the
+/// [AppUsageBadge]. Promoted from marketplace_sdk's profile footer — every
+/// piece of it already read only base_sdk symbols.
+///
+/// Exported on its own (not just inside [BaseProfileFooter]) so an SDK
+/// that overrides the `base.footer` section can still embed the standard
+/// meta row inside its own composition — marketplace_sdk does exactly
+/// that to keep its member-only links above the row.
+class ProfileMetaRow extends StatelessWidget {
+  const ProfileMetaRow({super.key});
+
+  /// The answer the Online/Offline dot draws.
+  ///
+  /// The guided-tour build (`--dart-define=TOUR_MODE=true`) has no backend
+  /// by design, so the api_status probe behind
+  /// [AppConnectivity.backendAvailability] can only ever fail there, and
+  /// the dot drew a red Offline on every tour still - a connection-failure
+  /// state on a build that has no connection to fail, captured verbatim by
+  /// the guided tour. Anything [DemoSession.demoActive] covers - the tour
+  /// build, or a demo session served from the same fixtures - reads as
+  /// connected without probing; a real session still asks the backend. The
+  /// probe itself stays honest: the splash boot and `ConnectivityService`
+  /// read it to gate the outbox drain and the translation fetch, and must
+  /// keep seeing the backend as it is. Same gate the other SDKs put in
+  /// front of their network paths.
+  static Future<bool> _online() => DemoSession.demoActive
+      ? Future<bool>.value(true)
+      : AppConnectivity.backendAvailability();
+
+  @override
+  Widget build(BuildContext context) {
+    // A BuildContext lookup for the mode, not the app-wide AppStyle.isDark
+    // static (Ray, 2026-09-19: "glance doesnt change test immediately
+    // untill you come back if you switched theme mode" — the same defect,
+    // found here by the fleet audit that followed).
+    //
+    // This row resolved nothing from the context: its ink came from
+    // AppStyle's statics, which are not an inherited widget, so a
+    // theme-mode change scheduled no rebuild of it. And it is mounted
+    // `const` by BaseProfileFooter below, so the flip provably cannot
+    // reach it through a parent rebuild either — the same const-child
+    // boundary the glance card sat behind. The version line goes further
+    // still, being built inside a FutureBuilder. Reading the inherited
+    // theme here makes this element a dependent, so the mode change itself
+    // restyles the row while the profile is on screen, which is exactly
+    // where the theme toggle lives.
+    final Color ink = AppStyle.inkFor(Theme.of(context).brightness);
+
+    // Wrap, not Row: on narrow screens (or a caller overriding the badge
+    // back to both figures) the line can exceed the width; extra items
+    // flow to a second centred line instead of overflowing.
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      runSpacing: 4,
+      children: [
+        Text(
+          AppHelpers.getAppName() ?? "",
+          style: AppStyle.interBold(color: AppStyle.primary),
+        ),
+        const SizedBox(width: 4),
+        Icon(
+          Remix.checkbox_blank_circle_fill,
+          size: 8,
+          // Mode-resolving ink so the separator follows the theme.
+          color: ink,
+        ),
+        FutureBuilder<PackageInfo>(
+          future: PackageInfo.fromPlatform(),
+          builder: (context, packageSnapshot) {
+            if (packageSnapshot.hasData) {
+              // Just a lowercase "v" prefix — the spelled-out "App
+              // Version" label was too long for the row (product ask
+              // 2026-08-28). No translation key ever backed this label
+              // (the old words were hardcoded English), and "v" is a
+              // locale-neutral version marker, so none is added.
+              String versionDisplay;
+              if (kDebugMode) {
+                versionDisplay =
+                    " v${packageSnapshot.data!.version}+${packageSnapshot.data!.buildNumber}";
+              } else {
+                versionDisplay = " v${packageSnapshot.data!.version}";
+              }
+
+              return Text(
+                versionDisplay,
+                style: AppStyle.interNormal(color: ink),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
+        // Online/Offline dot backed by a real backend probe (guest
+        // api_status) - except in a demo build or session, which reads as
+        // connected (see [_online]). Listens to the runtime demo switch:
+        // the profile is on screen when a sign-out ends a demo session,
+        // and re-asks the probe at that moment instead of keeping the
+        // session's answer - keyed on the answer's source, so the flip
+        // starts a fresh builder (a FutureBuilder handed a new future
+        // keeps showing its last data until the new one resolves).
+        ListenableBuilder(
+          listenable: DemoSession.instance,
+          builder: (context, _) => FutureBuilder<bool>(
+            key: ValueKey<bool>(DemoSession.demoActive),
+            future: _online(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const SizedBox.shrink();
+              }
+              final isOnline = snapshot.data!;
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 8),
+                  Icon(
+                    Remix.checkbox_blank_circle_fill,
+                    size: 20,
+                    color: isOnline ? AppStyle.green : AppStyle.red,
+                  ),
+                  Text(
+                    isOnline ? 'Online' : 'Offline',
+                    style: TextStyle(
+                      color: isOnline ? AppStyle.green : AppStyle.red,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+        // The usage badge counts a signed-in user's app opens. In the
+        // host's anonymous mode (no account facade) there is no such user
+        // and the stats read answers all zeros, so the badge is left out
+        // rather than rendered dead. Outside the host, or with an account,
+        // the row is exactly as before.
+        if (ProfileHostScope.of(context).hasAccount) ...[
+          SizedBox(width: 16.w),
+          const AppUsageBadge(),
+        ],
+      ],
+    );
+  }
+}
+
+/// base_sdk's default `base.footer` profile section: the [ProfileMetaRow]
+/// alone, lightly padded. Registered by the generic profile host via
+/// `ProfileSectionRegistry.I.ensureDefaultSections()` only when no SDK
+/// claimed the [sectionId] slot first.
+///
+/// Overriding: register your own [ProfileSection] with id [sectionId]
+/// from a `di_hooks` entry — bootstrap registration always precedes the
+/// host page's mount, and duplicate ids are first-wins, so the SDK's
+/// section replaces this default. Hiding: register a [sectionId] section
+/// whose `visible` gate resolves false.
+class BaseProfileFooter extends StatelessWidget {
+  /// Section id of the default footer slot.
+  static const String sectionId = 'base.footer';
+
+  /// Section order of the default footer — far above any conventional
+  /// SDK section order so the footer lands last.
+  static const int sectionOrder = 1000;
+
+  const BaseProfileFooter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.r),
+      child: const ProfileMetaRow(),
+    );
+  }
+}

@@ -1,0 +1,96 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:base_sdk/src/services/app_helpers.dart';
+import 'package:base_sdk/src/presentation/theme/app_style.dart';
+
+class UnderlineDropDown extends StatelessWidget {
+  final String? value;
+  final String? hint;
+  final String? label;
+  final List<String> list;
+  final ValueChanged<String> onChanged;
+  final String? Function(String?)? validator;
+
+  const UnderlineDropDown({
+    super.key,
+    this.value,
+    required this.list,
+    required this.onChanged,
+    this.hint,
+    this.label,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // The mode comes from the inherited theme rather than AppStyle's
+    // app-wide isDark static: a static is not an inherited widget, so a
+    // theme-mode flip reschedules nothing here and the dropdown keeps the
+    // previous mode's ink and menu fill. Read once, outside every builder.
+    final Brightness brightness = Theme.of(context).brightness;
+    return DropdownButtonFormField(
+      padding: EdgeInsets.zero,
+      hint: Text(
+        AppHelpers.getTranslation(hint ?? ''),
+        style: AppStyle.interNormal(
+          size: 14,
+          color: AppStyle.inkFor(brightness).withOpacity(0.7),
+        ),
+      ),
+      value: value,
+      validator: validator,
+      items: list.map((e) {
+        return DropdownMenuItem(
+          value: e,
+          child: Text(AppHelpers.getTranslation(e)),
+        );
+      }).toList(),
+      onChanged: (s) => onChanged.call(s.toString()),
+      elevation: 0,
+      dropdownColor: AppStyle.cardFor(brightness),
+      iconEnabledColor: AppStyle.inkFor(brightness),
+      borderRadius: BorderRadius.circular(8.r),
+      style: AppStyle.interNormal(color: AppStyle.inkFor(brightness)),
+      decoration: InputDecoration(
+        contentPadding: REdgeInsets.symmetric(horizontal: 2),
+        labelText:
+            label != null ? "${AppHelpers.getTranslation(label!)}*" : null,
+        labelStyle: AppStyle.interNormal(
+          size: 14,
+          color: AppStyle.inkFor(brightness).withOpacity(0.9),
+        ),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide.merge(
+            const BorderSide(color: AppStyle.differBorderColor),
+            const BorderSide(color: AppStyle.differBorderColor),
+          ),
+        ),
+        errorBorder: InputBorder.none,
+        border: const UnderlineInputBorder(),
+        focusedErrorBorder: const UnderlineInputBorder(),
+        disabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide.merge(
+            const BorderSide(color: AppStyle.differBorderColor),
+            const BorderSide(color: AppStyle.differBorderColor),
+          ),
+        ),
+        focusedBorder: const UnderlineInputBorder(),
+      ),
+    );
+  }
+}

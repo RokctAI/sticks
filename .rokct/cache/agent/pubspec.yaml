@@ -1,0 +1,51 @@
+name: agent_sdk
+description: "AI coding assistants and intelligent reasoning interfaces."
+version: 1.2.0
+publish_to: 'none'
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+  flutter: '>=3.38.5'
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.6.1
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.8.1
+  # Icon standard (.rokct/decision_log.md "Icon package standard").
+  remixicon: ^1.4.1
+  base_sdk:
+    path: ../base
+  productivity_sdk:
+    path: ../productivity
+  comms_sdk:
+    path: ../comms
+  processing_sdk:
+    path: ../processing
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  # Test-only: the owner-scope tests need a real generated drift database to
+  # migrate (the SDK's own tables are only ever composed into base_sdk's
+  # AppDatabase, which has no generated accessors here). A dev dependency, so
+  # no composed app's resolution is touched.
+  drift_dev: ^2.28.0
+  build_runner: ^2.10.4
+  freezed: ^3.2.3
+  json_serializable: ^6.7.1
+
+# Workspace-relative overrides so this package resolves standalone for
+# codegen/analysis. Ignored when a host app is the resolution root.
+dependency_overrides:
+  http: ^1.2.0
+  google_fonts: ^6.3.0
+  intl: ^0.20.2
+  share_plus: ^12.0.1
+  base_sdk:
+    path: ../base
+  productivity_sdk:
+    path: ../productivity
+  comms_sdk:
+    path: ../comms
+  processing_sdk:
+    path: ../processing

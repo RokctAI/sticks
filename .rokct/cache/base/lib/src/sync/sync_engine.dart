@@ -1,0 +1,620 @@
+// Copyright (c) 2026 ROKCT INTELLIGENCE (PTY) LTD
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, version 3.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
+
+import 'package:base_sdk/src/database/app_database.dart';
+import 'package:base_sdk/src/database/owner_scope.dart';
+import 'package:base_sdk/src/sync/outbox_table.dart';
+import 'package:base_sdk/src/sync/sync_handler.dart';
+
+/// Prefix marking a locally minted id, shared with auth's offline-token
+/// convention (`OfflineAuthService.isOfflineToken`).
+const String kOfflineIdPrefix = 'offline:';
+
+/// Drains the offline outbox to the backend.
+///
+/// Process-wide singleton like [AppDatabase]. Feature SDKs register a
+/// [SyncHandler] per op type; base triggers [kick] at boot (splash online
+/// path) and on connectivity regain (`ConnectivityService`). With no
+/// handlers registered and an empty outbox the engine is inert — [kick]
+/// reads one empty table and returns.
+class SyncEngine {
+  SyncEngine._internal();
+
+  factory SyncEngine() => _instance ??= SyncEngine._internal();
+  static SyncEngine? _instance;
+
+  /// Test-only: drop the singleton so the next [SyncEngine] call builds a
+  /// fresh engine with no handlers and the default page size.
+  @visibleForTesting
+  static void debugReset() {
+    _instance = null;
+  }
+
+  /// Retry delays indexed by (attempts - 1); the last entry repeats until
+  /// [maxAttempts] is reached.
+  static const List<Duration> backoff = [
+    Duration(minutes: 1),
+    Duration(minutes: 5),
+    Duration(minutes: 30),
+    Duration(hours: 6),
+  ];
+
+  /// Retryable failures beyond this mark the op [OutboxStatus.dead].
+  static const int maxAttempts = 10;
+
+  /// Rows read per query by the drain and the temp-id rewrite pass.
+  ///
+  /// Both used to materialise their whole result set, which on a large
+  /// outbox is a spike in exactly the anonymous RSS the Feb 2027 Play
+  /// memory thresholds measure. Settable so tests can force multi-page
+  /// paths on tiny fixtures; leave it alone in app code.
+  static const int defaultPageSize = 100;
+
+  @visibleForTesting
+  int pageSize = defaultPageSize;
+
+  final Map<String, SyncHandler> _handlers = {};
+
+  bool _draining = false;
+  bool _kickRequested = false;
+
+  AppDatabase get _db => AppDatabase();
+
+  /// The account whose queue this engine is working on right now.
+  ///
+  /// Every read and write below is filtered by it. An op belongs to whoever
+  /// queued it, and only that account's session may push it: the whole point
+  /// of the scoping is that user A's pending mutations never drain under user
+  /// B's token into B's account. Rows with no owner - everything queued before
+  /// scoping existed - still drain for whoever is signed in, which is exactly
+  /// what happens today and no worse.
+  String get _owner => OwnerScope.instance.current;
+
+  Expression<bool> _visible(OutboxTable t, String owner) =>
+      ownerVisible(t.owner, owner);
+
+  /// Route ops of [opType] to [handler]. Re-registering replaces the
+  /// previous handler (hot-restart safe).
+  void registerHandler(String opType, SyncHandler handler) {
+    _handlers[opType] = handler;
+  }
+
+  /// New outbox op id / idempotency key.
+  static String newOpId() => _uuidV4();
+
+  /// New temp entity id in the shared `offline:<uuid>` convention.
+  static String newTempId() => '$kOfflineIdPrefix${_uuidV4()}';
+
+  /// Queue an op for push. Returns the outbox id (also the idempotency key).
+  ///
+  /// Does not push by itself — call [kick] afterwards when the op should go
+  /// out immediately (the boot and connectivity triggers cover the rest).
+  Future<String> enqueue({
+    required String opType,
+    required String sdk,
+    required Map<String, dynamic> payload,
+    List<String> tempIds = const [],
+    List<String> dependsOn = const [],
+    String? id,
+  }) async {
+    final now = DateTime.now();
+    final opId = id ?? newOpId();
+    await _db
+        .into(_db.outboxTable)
+        .insert(
+          OutboxTableCompanion.insert(
+            id: opId,
+            opType: opType,
+            sdk: sdk,
+            payload: jsonEncode(payload),
+            tempIds: jsonEncode(tempIds),
+            dependsOn: jsonEncode(dependsOn),
+            status: OutboxStatus.pending.name,
+            attempts: 0,
+            createdAt: now,
+            updatedAt: now,
+            owner: Value(_owner),
+          ),
+        );
+    return opId;
+  }
+
+  /// Queue a coalescing op: at most one outbox row per (opType, dedupeKey),
+  /// under the deterministic id `<opType>:<dedupeKey>`. While that row is
+  /// still in the outbox, calling again replaces its payload with the newer
+  /// one and resets it to pending (latest snapshot wins) — including when
+  /// the old payload is mid-push, in which case the row survives that push
+  /// and goes out again with the new payload. Use for ops whose payload is
+  /// a full snapshot (e.g. `cart.sync`), where replaying every intermediate
+  /// state would be wasteful.
+  Future<String> enqueueOrReplace({
+    required String opType,
+    required String sdk,
+    required String dedupeKey,
+    required Map<String, dynamic> payload,
+    List<String> tempIds = const [],
+    List<String> dependsOn = const [],
+  }) async {
+    final opId = '$opType:$dedupeKey';
+    final String owner = _owner;
+    // The coalescing target is looked up among the rows this account can see,
+    // NOT by id alone: `<opType>:<dedupeKey>` is deterministic, so another
+    // account on the same device can hold a row under the very same id and
+    // must not have its snapshot replaced by this one.
+    final existing = await ((_db.select(_db.outboxTable)
+              ..where((t) => t.id.equals(opId) & _visible(t, owner))
+              ..orderBy([(t) => OrderingTerm.desc(t.owner)])
+              ..limit(1))
+            .getSingleOrNull());
+    if (existing == null) {
+      return enqueue(
+        opType: opType,
+        sdk: sdk,
+        payload: payload,
+        tempIds: tempIds,
+        dependsOn: dependsOn,
+        id: opId,
+      );
+    }
+    // Fresh snapshot: earlier failures no longer apply, so retry state is
+    // reset alongside the payload.
+    await _writeOp(
+      opId,
+      OutboxTableCompanion(
+        payload: Value(jsonEncode(payload)),
+        tempIds: Value(jsonEncode(tempIds)),
+        dependsOn: Value(jsonEncode(dependsOn)),
+        status: Value(OutboxStatus.pending.name),
+        attempts: const Value(0),
+        lastError: const Value(null),
+        nextAttemptAt: const Value(null),
+      ),
+      // The row found above, which may be an unowned one this account has
+      // inherited rather than a row of its own.
+      owner: existing.owner,
+    );
+    return opId;
+  }
+
+  /// Whether any op of [opType] is still in the outbox for the current
+  /// account, whatever its status — a failed or dead op also means the
+  /// backend has not caught up.
+  Future<bool> hasPending(String opType) async {
+    final String owner = _owner;
+    final row = await (_db.select(_db.outboxTable)
+          ..where((t) => t.opType.equals(opType) & _visible(t, owner))
+          ..limit(1))
+        .get();
+    return row.isNotEmpty;
+  }
+
+  /// Ops parked for user resolution — [OutboxStatus.failed] (terminally
+  /// rejected by the backend) and [OutboxStatus.dead] (retry cap exhausted)
+  /// — oldest first. Read API for sync-issues surfaces; pair with [retryOp]
+  /// / [deleteOp] to resolve them.
+  Future<List<OutboxEntry>> parkedOps() {
+    final String owner = _owner;
+    return (_db.select(_db.outboxTable)
+          ..where(
+            (t) =>
+                t.status.isIn([
+                  OutboxStatus.failed.name,
+                  OutboxStatus.dead.name,
+                ]) &
+                _visible(t, owner),
+          )
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+  }
+
+  /// Requeue a parked ([OutboxStatus.failed] / [OutboxStatus.dead]) op as-is
+  /// and kick the drain: status back to pending with attempts, lastError and
+  /// the backoff window cleared, so the push re-runs immediately with the
+  /// stored payload. Returns false (and touches nothing) when [opId] is not
+  /// in the outbox or not parked — pending and inFlight ops are already on
+  /// their way and must not have their retry state reset from outside.
+  Future<bool> retryOp(String opId) async {
+    final String owner = _owner;
+    final reset = await (_db.update(_db.outboxTable)
+          ..where(
+            (t) =>
+                t.id.equals(opId) &
+                t.status.isIn([
+                  OutboxStatus.failed.name,
+                  OutboxStatus.dead.name,
+                ]) &
+                _visible(t, owner),
+          ))
+        .write(
+          OutboxTableCompanion(
+            status: Value(OutboxStatus.pending.name),
+            attempts: const Value(0),
+            lastError: const Value(null),
+            nextAttemptAt: const Value(null),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+    if (reset == 0) return false;
+    await kick();
+    return true;
+  }
+
+  /// Remove an op from the outbox so it never pushes (the discard arm of
+  /// park-and-surface). Also what unblocks any dependents that listed it in
+  /// `dependsOn` — a parked op is otherwise held in the outbox forever,
+  /// blocking them. Returns whether a row was actually deleted.
+  Future<bool> deleteOp(String opId) async {
+    final String owner = _owner;
+    final deleted = await (_db.delete(
+      _db.outboxTable,
+    )..where((t) => t.id.equals(opId) & _visible(t, owner))).go();
+    return deleted > 0;
+  }
+
+  /// Drain pending ops oldest-first. Safe to call from anywhere at any
+  /// time: overlapping calls coalesce into one extra pass, ops without a
+  /// registered handler stay pending untouched, and backoff windows are
+  /// respected.
+  Future<void> kick() async {
+    if (_draining) {
+      // A drain is running; have it take one more pass so ops enqueued
+      // since it started are not missed.
+      _kickRequested = true;
+      return;
+    }
+    _draining = true;
+    try {
+      do {
+        _kickRequested = false;
+        await _drainOnce();
+      } while (_kickRequested);
+    } finally {
+      _draining = false;
+    }
+  }
+
+  Future<void> _drainOnce() async {
+    final now = DateTime.now();
+    // Read once for the whole pass: a sign-out mid-drain must not move the
+    // remaining pages onto another account's queue.
+    final String owner = _owner;
+    // Ops synced (and therefore deleted) during this pass. Kept so a
+    // dependent later in the same pass sees its parent as satisfied
+    // immediately, exactly as the whole-table snapshot used to.
+    final syncedThisPass = <String>{};
+
+    DateTime? cursorCreatedAt;
+    String? cursorId;
+
+    while (true) {
+      // Oldest-first, one bounded page at a time. Keyset paging on the
+      // immutable (createdAt, id) key rather than OFFSET: rows change status
+      // and get deleted mid-pass, and an offset would skip or repeat them.
+      // `createdAt <= now` reproduces the old single-SELECT snapshot
+      // boundary, so ops enqueued while this pass runs wait for the next one
+      // — kick()'s _kickRequested loop already guarantees there is one.
+      final page = await _pendingPage(now, owner, cursorCreatedAt, cursorId);
+      if (page.isEmpty) return;
+
+      // A dependency is satisfied once its row is gone from the outbox
+      // (synced ops are deleted); any id still present — whatever its
+      // status — blocks the dependent op. Only this page's declared
+      // dependencies are looked up, instead of every id in the table.
+      final declaredDeps = <String>{};
+      for (final op in page) {
+        declaredDeps.addAll(_decodeStringList(op.dependsOn));
+      }
+      final unsynced = await _stillQueued(declaredDeps, owner);
+
+      for (final op in page) {
+        if (op.nextAttemptAt != null && op.nextAttemptAt!.isAfter(now)) {
+          continue; // Still backing off.
+        }
+        final blocked = _decodeStringList(op.dependsOn).any(
+          (depId) =>
+              depId != op.id &&
+              unsynced.contains(depId) &&
+              !syncedThisPass.contains(depId),
+        );
+        if (blocked) continue; // Parents before children.
+        final handler = _handlers[op.opType];
+        if (handler == null) continue; // Owning SDK not composed/registered.
+
+        await _setStatus(op.id, op.owner, OutboxStatus.inFlight);
+        SyncResult result;
+        try {
+          result = await handler.push(op);
+        } catch (e) {
+          result = SyncResult.retryable(e.toString());
+        }
+        switch (result) {
+          case SyncSynced(:final idMappings, :final entityType):
+            final removed = await _applySynced(
+              op,
+              handler,
+              idMappings,
+              entityType,
+            );
+            if (removed) syncedThisPass.add(op.id);
+          case SyncRetryable(:final error):
+            await _applyRetryable(op, error);
+          case SyncRejected(:final error):
+            await _applyRejected(op, error);
+        }
+      }
+
+      if (page.length < pageSize) return;
+      cursorCreatedAt = page.last.createdAt;
+      cursorId = page.last.id;
+    }
+  }
+
+  /// One page of pending ops created at or before [passStart], oldest
+  /// first, strictly after the (createdAt, id) cursor when one is given.
+  Future<List<OutboxEntry>> _pendingPage(
+    DateTime passStart,
+    String owner,
+    DateTime? afterCreatedAt,
+    String? afterId,
+  ) {
+    final query = _db.select(_db.outboxTable)
+      ..where((t) {
+        var predicate =
+            t.status.equals(OutboxStatus.pending.name) &
+            _visible(t, owner) &
+            t.createdAt.isSmallerOrEqualValue(passStart);
+        if (afterCreatedAt != null && afterId != null) {
+          predicate = predicate &
+              (t.createdAt.isBiggerThanValue(afterCreatedAt) |
+                  (t.createdAt.equals(afterCreatedAt) &
+                      t.id.isBiggerThanValue(afterId)));
+        }
+        return predicate;
+      })
+      // id breaks createdAt ties so the keyset cursor is total; the unpaged
+      // version ordered by createdAt alone and left ties unspecified.
+      ..orderBy([
+        (t) => OrderingTerm.asc(t.createdAt),
+        (t) => OrderingTerm.asc(t.id),
+      ])
+      ..limit(pageSize);
+    return query.get();
+  }
+
+  /// Which of [ids] still have a row in the outbox, whatever its status.
+  /// Chunked so the generated `IN (...)` never approaches SQLite's bound
+  /// parameter limit.
+  Future<Set<String>> _stillQueued(Set<String> ids, String owner) async {
+    if (ids.isEmpty) return const <String>{};
+    const chunkSize = 200;
+    final all = ids.toList();
+    final found = <String>{};
+    for (var start = 0; start < all.length; start += chunkSize) {
+      final chunk = all.sublist(
+        start,
+        math.min(start + chunkSize, all.length),
+      );
+      // Only the id column: the point of this query is to avoid pulling
+      // payload strings into memory.
+      final idColumn = _db.outboxTable.id;
+      final rows = await (_db.selectOnly(_db.outboxTable)
+            ..addColumns([idColumn])
+            ..where(
+              idColumn.isIn(chunk) &
+                  ownerVisible(_db.outboxTable.owner, owner),
+            ))
+          .get();
+      for (final row in rows) {
+        final id = row.read(idColumn);
+        if (id != null) found.add(id);
+      }
+    }
+    return found;
+  }
+
+  /// Returns whether the op's row was actually removed from the outbox.
+  Future<bool> _applySynced(
+    OutboxEntry op,
+    SyncHandler handler,
+    Map<String, String> idMappings,
+    String? entityType,
+  ) async {
+    final now = DateTime.now();
+    if (idMappings.isNotEmpty) {
+      final type = entityType ?? op.opType.split('.').first;
+      for (final entry in idMappings.entries) {
+        await _db
+            .into(_db.idMappingsTable)
+            .insertOnConflictUpdate(
+              IdMappingsTableCompanion.insert(
+                tempId: entry.key,
+                backendId: entry.value,
+                entityType: type,
+                mappedAt: now,
+              ),
+            );
+      }
+      await _rewritePendingPayloads(idMappings, op.owner);
+      // A temp-local account that has just been registered server-side is
+      // about to be called by its backend id instead of by the
+      // `offline:<local user id>` token that owned its rows until now, so its
+      // rows have to follow it - without this it would come back from its
+      // first sync unable to see its own work.
+      //
+      // Only the op's OWN owner is considered, and only when it is an offline
+      // identity: the guard costs nothing, whereas adopting on every reported
+      // mapping would issue two owner-keyed UPDATEs (an unindexed scan of both
+      // tables) per resolved temp entity id, nearly always for an id that is
+      // no account's owner. An SDK that resolves an identity by some other
+      // route calls [AppDatabase.adoptOwner] itself.
+      final String? adopted = idMappings[op.owner];
+      if (adopted != null && op.owner.startsWith(kOfflineIdPrefix)) {
+        await _db.adoptOwner(op.owner, adopted);
+      }
+    }
+    try {
+      await handler.onSynced(op, idMappings);
+    } catch (e) {
+      // The op itself synced; a callback failure must not re-queue it.
+      debugPrint('==> sync onSynced callback failed (${op.opType}): $e');
+    }
+    // Delete only while still inFlight: enqueueOrReplace may have swapped in
+    // a newer payload mid-push (resetting the row to pending), and that
+    // newer snapshot must survive to be pushed on the next pass.
+    final deleted = await (_db.delete(_db.outboxTable)..where(
+          (t) =>
+              t.id.equals(op.id) &
+              t.owner.equals(op.owner) &
+              t.status.equals(OutboxStatus.inFlight.name),
+        ))
+        .go();
+    return deleted > 0;
+  }
+
+  /// Exact-string substitution of `offline:<uuid>` tokens in still-pending
+  /// payloads. Sound because temp ids are globally unique prefixed strings
+  /// that cannot occur naturally in payload JSON.
+  Future<void> _rewritePendingPayloads(
+    Map<String, String> idMappings,
+    String owner,
+  ) async {
+    // Paged over the immutable id key: the pass only rewrites `payload` and
+    // `updatedAt`, so the cursor column never moves under it and every
+    // pending row is visited exactly once.
+    String? cursorId;
+    while (true) {
+      // A final copy: a mutable local captured by the predicate closure
+      // would not promote to non-nullable after the null check.
+      final String? after = cursorId;
+      final rows = await (_db.select(_db.outboxTable)
+            ..where((t) {
+              final pending = t.status.equals(OutboxStatus.pending.name) &
+                  _visible(t, owner);
+              return after == null
+                  ? pending
+                  : pending & t.id.isBiggerThanValue(after);
+            })
+            ..orderBy([(t) => OrderingTerm.asc(t.id)])
+            ..limit(pageSize))
+          .get();
+      if (rows.isEmpty) return;
+      for (final row in rows) {
+        var payload = row.payload;
+        idMappings.forEach((tempId, backendId) {
+          payload = payload.replaceAll(tempId, backendId);
+        });
+        if (payload == row.payload) continue;
+        await (_db.update(_db.outboxTable)..where(
+              (t) => t.id.equals(row.id) & t.owner.equals(row.owner),
+            ))
+            .write(
+              OutboxTableCompanion(
+                payload: Value(payload),
+                updatedAt: Value(DateTime.now()),
+              ),
+            );
+      }
+      if (rows.length < pageSize) return;
+      cursorId = rows.last.id;
+    }
+  }
+
+  Future<void> _applyRetryable(OutboxEntry op, String error) async {
+    final attempts = op.attempts + 1;
+    if (attempts >= maxAttempts) {
+      await _writeOp(
+        op.id,
+        OutboxTableCompanion(
+          status: Value(OutboxStatus.dead.name),
+          attempts: Value(attempts),
+          lastError: Value(error),
+        ),
+        owner: op.owner,
+      );
+      return;
+    }
+    final delay = backoff[math.min(attempts - 1, backoff.length - 1)];
+    await _writeOp(
+      op.id,
+      OutboxTableCompanion(
+        status: Value(OutboxStatus.pending.name),
+        attempts: Value(attempts),
+        lastError: Value(error),
+        nextAttemptAt: Value(DateTime.now().add(delay)),
+      ),
+      owner: op.owner,
+    );
+  }
+
+  Future<void> _applyRejected(OutboxEntry op, String error) async {
+    await _writeOp(
+      op.id,
+      OutboxTableCompanion(
+        status: Value(OutboxStatus.failed.name),
+        attempts: Value(op.attempts + 1),
+        lastError: Value(error),
+      ),
+      owner: op.owner,
+    );
+  }
+
+  Future<void> _setStatus(String id, String owner, OutboxStatus status) =>
+      _writeOp(
+        id,
+        OutboxTableCompanion(status: Value(status.name)),
+        owner: owner,
+      );
+
+  /// Writes one op's row. Keyed on the FULL primary key: `id` alone can name
+  /// two rows now, and a status write that reached another account's op would
+  /// be the cross-account write the owner column exists to stop.
+  Future<void> _writeOp(
+    String id,
+    OutboxTableCompanion changes, {
+    required String owner,
+  }) async {
+    await (_db.update(_db.outboxTable)
+          ..where((t) => t.id.equals(id) & t.owner.equals(owner)))
+        .write(changes.copyWith(updatedAt: Value(DateTime.now())));
+  }
+
+  List<String> _decodeStringList(String json) {
+    try {
+      return (jsonDecode(json) as List).cast<String>();
+    } catch (_) {
+      return const [];
+    }
+  }
+}
+
+final math.Random _random = math.Random.secure();
+
+/// RFC 4122 version 4 UUID from a cryptographically secure source (no
+/// package dependency needed for just this).
+String _uuidV4() {
+  final bytes = List<int>.generate(16, (_) => _random.nextInt(256));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+  bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10xx
+  final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
+      '${hex.substring(12, 16)}-${hex.substring(16, 20)}-'
+      '${hex.substring(20)}';
+}

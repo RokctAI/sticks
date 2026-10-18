@@ -1,0 +1,45 @@
+{
+  "name": "agent_sdk",
+  "version": "1.2.0",
+  "_comment_version_1_2_0": "1.1.0 -> 1.2.0: the lesson lane is built. New LessonAssistantLane (lib/src/common/infrastructure/services/lesson_assistant_lane.dart, exported from the barrel) is the agent side of a host's lesson assistant bridge: it asks through AssistantService.forLesson, so every question goes to api.ask_assistant on the platform gateway with in_lesson: true, the lesson's current subtopic as subtopic_ref (empty before the first; setting it rebuilds the service on the lane's own controllers), and the transcript under the lesson session id. ask() completes when the answer or the failure has arrived and never throws for a backend failure; replies and errors are its streams. lms_sdk 1.46.1's composed lesson route wraps it in AgentLessonAssistantBridge for real (non-demo) sessions.",
+  "_comment_version_1_1_0": "1.0.8 -> 1.1.0: (1) In-lesson assistant gate (supacharge verify B2). AgentFacade.askAssistant / AgentRepository send an explicit `in_lesson` on every api.ask_assistant call; AssistantService gains `inLesson` (default false, the standalone chat page) and the AssistantService.forLesson factory host lesson bridges build with (in_lesson true, transcript keyed by the lesson session). The backend now fails closed whenever in_lesson is true, with or without a subtopic_ref; the subtopic_ref check stays for older clients. (2) Assistant chat history per account, claimed in 1.0.4 and now built: new AssistantHistoryStore (plain SQL over assistant_history_table, the radio DriftListenStatsStore pattern) saves the question on send and the answer on receive under OwnerScope.instance.current, writes nothing with nobody signed in, and reads with the ownerVisible rule, so another account never sees the transcript. AssistantService.loadHistory feeds the chat page, which shows the account's history when it opens. Local only and best effort: offline it works the same and a failure is never an error. Registered by AgentSdkDependencies on the shared AppDatabase. (3) Demo: new fixture api.ask_assistant (templates/assets/demo/agent -> assets/demo/agent, registered with DemoFixtures) so a demo chat answers through the real repository and its history fills like a real one. No schema change (migration stays 21).",
+  "_comment_version_1_0_6": "1.0.5 -> 1.0.6: AgentRepository.uploadPath is tagged `// bypasses gateway: multipart upload` so gateway audits can tell the one allowed bypass (raw file bytes cannot ride the JSON {cmd, payload} envelope) from an unintended one. No behaviour change.",
+  "installs": [
+    {
+      "from": "templates/pages/agent",
+      "to": "lib/presentation/pages/agent"
+    },
+    {
+      "from": "templates/assets/demo/agent",
+      "to": "assets/demo/agent"
+    }
+  ],
+  "app_assets": [
+    "assets/demo/agent/"
+  ],
+  "routes": [
+    {
+      "path": "/assistant-chat",
+      "page": "AssistantChatRoute.page",
+      "type": "MaterialRoute",
+      "import": "package:${package}/presentation/pages/agent/assistant_chat_page.dart"
+    }
+  ],
+  "database": {
+    "tables": [
+      {
+        "class": "AssistantCacheTable",
+        "import": "package:agent_sdk/src/common/infrastructure/database/drift_tables.dart"
+      },
+      {
+        "class": "AssistantHistoryTable",
+        "import": "package:agent_sdk/src/common/infrastructure/database/drift_tables.dart"
+      }
+    ],
+    "migration": {
+      "version": 21,
+      "step": "if (from < 15) { await m.createTable(assistantCacheTable); await m.createTable(assistantHistoryTable); } if (from < 21) { await ensureAgentOwnerScopeColumns(this); }"
+    },
+    "_comment": "21 is agent_sdk's owner-scoping version in the shared fleetwide namespace. assistant_history_table gains an `owner` column inside its primary key so two accounts on one device cannot read each other's transcripts; the step rebuilds the table (rename aside, recreate, copy the shared columns, drop) because SQLite cannot alter a primary key in place, and carried rows take the '' default, which stays visible to everyone. assistant_cache_table is content, not user data, and is left unscoped."
+  }
+}
