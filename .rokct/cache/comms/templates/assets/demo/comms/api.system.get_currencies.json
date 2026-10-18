@@ -1,5 +1,0 @@
-{
-  "data": [
-    {"id": "ZAR", "symbol": "R", "title": "South African Rand", "rate": 1, "default": true, "active": true, "position": "before"}
-  ]
-}
