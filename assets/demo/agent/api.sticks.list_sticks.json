@@ -1,0 +1,90 @@
+{
+  "summary": {
+    "total": 4,
+    "waiting_on_you": 3
+  },
+  "sticks": [
+    {
+      "id": "tumi@acme.rokct.ai",
+      "name": "Tumi",
+      "role": "Tenders Officer",
+      "state": "waiting",
+      "status_text": "Needs your approval",
+      "hours": "08:00-17:00",
+      "back_at": null,
+      "owns": [
+        "Finds tenders daily",
+        "Builds the bid pack",
+        "Watches closing dates"
+      ],
+      "look": {
+        "skin": "#f4c592",
+        "shirt": "#6cbf4a",
+        "hair": "cap",
+        "hair_color": "#4d8a3b"
+      },
+      "open_confirms": 1
+    },
+    {
+      "id": "thandi@acme.rokct.ai",
+      "name": "Thandi",
+      "role": "Secretary",
+      "state": "waiting",
+      "status_text": "Needs your permission",
+      "hours": "08:00-17:00",
+      "back_at": null,
+      "owns": [
+        "Books meetings",
+        "Sorts email",
+        "Holds messages at reception"
+      ],
+      "look": {
+        "skin": "#b77b52",
+        "shirt": "#f0843f",
+        "hair": "ponytail",
+        "hair_color": "#1e1a17"
+      },
+      "open_confirms": 1
+    },
+    {
+      "id": "kabelo@acme.rokct.ai",
+      "name": "Kabelo",
+      "role": "Accounts Clerk",
+      "state": "waiting",
+      "status_text": "Wants to call a customer",
+      "hours": "08:00-17:00",
+      "back_at": null,
+      "owns": [
+        "Raises and chases invoices",
+        "Captures receipts"
+      ],
+      "look": {
+        "skin": "#f4c592",
+        "shirt": "#4c72b0",
+        "hair": "none",
+        "hair_color": "#1e1a17"
+      },
+      "open_confirms": 1
+    },
+    {
+      "id": "naledi@acme.rokct.ai",
+      "name": "Naledi",
+      "role": "Sales Rep",
+      "state": "off",
+      "status_text": "Off shift",
+      "hours": "09:00-18:00",
+      "back_at": "$now_iso+1d",
+      "owns": [
+        "Calls back leads",
+        "Books demos"
+      ],
+      "look": {
+        "skin": "#b77b52",
+        "shirt": "#8a5cc0",
+        "hair": "bob",
+        "hair_color": "#1e1a17"
+      },
+      "open_confirms": 0
+    }
+  ]
+}

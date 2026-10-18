@@ -1,0 +1,127 @@
+{
+  "$demo_select": {
+    "by": "payload.for",
+    "cases": {
+      "team": {
+        "messages": [
+          {
+            "id": "MSG-0043",
+            "from": "kabelo@acme.rokct.ai",
+            "to": "tumi@acme.rokct.ai",
+            "kind": "ask",
+            "body": "Can you send Mokoena a quote for 40 seats?",
+            "task": null,
+            "reply_to": null,
+            "attachments": [],
+            "sent_at": "$now_iso-120m",
+            "read": false,
+            "sensitivity": "normal",
+            "status": "delivered",
+            "confirm": null
+          },
+          {
+            "id": "MSG-0044",
+            "from": "kabelo@acme.rokct.ai",
+            "to": "tumi@acme.rokct.ai",
+            "kind": "ask",
+            "body": "Please email the Musina bid pack to the municipality.",
+            "task": "TASK-0042",
+            "reply_to": null,
+            "attachments": [],
+            "sent_at": "$now_iso-90m",
+            "read": false,
+            "sensitivity": "normal",
+            "status": "delivered",
+            "confirm": null
+          },
+          {
+            "id": "MSG-0040",
+            "from": "kabelo@acme.rokct.ai",
+            "to": "thandi@acme.rokct.ai",
+            "kind": "ask",
+            "body": "I need the tender pricing for the Musina invoice.",
+            "task": "TASK-0042",
+            "reply_to": null,
+            "attachments": [],
+            "sent_at": "$now_iso-30m",
+            "read": false,
+            "sensitivity": "sensitive",
+            "status": "awaiting_permission",
+            "confirm": "CONF-0012"
+          }
+        ],
+        "next_cursor": null
+      },
+      "owner": {
+        "messages": [
+          {
+            "id": "MSG-0031",
+            "from": "tumi@acme.rokct.ai",
+            "to": "owner",
+            "kind": "ask",
+            "body": "Which bank statement should I use for the Musina pack?",
+            "task": "TASK-0042",
+            "reply_to": null,
+            "attachments": [],
+            "sent_at": "$now_iso-45m",
+            "read": false,
+            "sensitivity": "normal",
+            "status": "delivered",
+            "confirm": null
+          },
+          {
+            "id": "MSG-0046",
+            "from": "kabelo@acme.rokct.ai",
+            "to": "owner",
+            "kind": "note",
+            "body": "Mokoena Builders is 12 days late on INV-0412. I would like to phone them.",
+            "task": "TASK-0044",
+            "reply_to": null,
+            "attachments": [],
+            "sent_at": "$now_iso-20m",
+            "read": false,
+            "sensitivity": "normal",
+            "status": "delivered",
+            "confirm": "CONF-0016"
+          }
+        ],
+        "next_cursor": null
+      }
+    },
+    "default": {
+      "messages": [
+        {
+          "id": "MSG-0043",
+          "from": "kabelo@acme.rokct.ai",
+          "to": "tumi@acme.rokct.ai",
+          "kind": "ask",
+          "body": "Can you send Mokoena a quote for 40 seats?",
+          "task": null,
+          "reply_to": null,
+          "attachments": [],
+          "sent_at": "$now_iso-120m",
+          "read": false,
+          "sensitivity": "normal",
+          "status": "delivered",
+          "confirm": null
+        },
+        {
+          "id": "MSG-0044",
+          "from": "kabelo@acme.rokct.ai",
+          "to": "tumi@acme.rokct.ai",
+          "kind": "ask",
+          "body": "Please email the Musina bid pack to the municipality.",
+          "task": "TASK-0042",
+          "reply_to": null,
+          "attachments": [],
+          "sent_at": "$now_iso-90m",
+          "read": false,
+          "sensitivity": "normal",
+          "status": "delivered",
+          "confirm": null
+        }
+      ],
+      "next_cursor": null
+    }
+  }
+}

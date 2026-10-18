@@ -1,0 +1,22 @@
+{
+  "stick": {
+    "id": "lindiwe@acme.rokct.ai",
+    "name": "Lindiwe",
+    "role": "Accounts Clerk",
+    "state": "off",
+    "status_text": "Starts at the next shift",
+    "hours": "08:00-17:00",
+    "back_at": "$now_iso+1d",
+    "owns": [
+      "Raises and chases invoices",
+      "Captures receipts"
+    ],
+    "look": {
+      "skin": "#f4c592",
+      "shirt": "#2f9c95",
+      "hair": "bob",
+      "hair_color": "#1e1a17"
+    },
+    "open_confirms": 0
+  }
+}

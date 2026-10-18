@@ -1,0 +1,14 @@
+{
+  "status": "answered",
+  "confirm": "CONF-0015",
+  "answer": "send",
+  "task": {
+    "id": "TASK-0042",
+    "status": "done"
+  },
+  "stick": {
+    "id": "tumi@acme.rokct.ai",
+    "state": "working",
+    "open_confirms": 0
+  }
+}

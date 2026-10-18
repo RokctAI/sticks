@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0
+
+- New `sticks` flavor: the Sticks app screens as Dart, built on the Sticks call contract (v0.5). Team, one Stick, task detail, asks, give a task, Friday report, Stick profile, lock-screen preview, empty state, settings, hire a Stick (roles from `list_roles`, the beam intro, automatic dressing that never repeats a look on the team, `create_stick`), the owner's Inbox (reply, hand back with a file, any Stick's inbox read-only), Between Sticks (every Stick-to-Stick message with its status, a sensitive request waiting for the owner's permission), and Calls (script and transcript of a Stick phoning a customer about an unpaid amount).
+- The ask screen renders a confirm exactly as the server sends it: a plain confirm, a permission to share sensitive data (`kind: "permission"`), or a draft of something that leaves the company (`kind: "draft"`: email, call, payment, post) with Send, Edit and Don't send.
+- One repository, `StickRepository`, over the `api.sticks.*` gateway cmds, behind the `StickData` interface. No demo repository: a demo session is served by one fixture per cmd (`templates/assets/demo/sticks`, installed to `assets/demo/agent` by the flavor and already registered by the SDK's DI).
+- Gated: the code is exported from `package:agent_sdk/sticks.dart`, not `agent_sdk.dart`. The routes, installed page file, fixtures, `home_sdk` and `app_routes` (`replaceMainRoute`, `replaceLoginRoute`) are under `app_type.sticks` in the manifest, so the other apps that compose agent_sdk get none of it.
+
 ## 1.2.0
 
 - The in-lesson lane is built. New `LessonAssistantLane` is the agent side of a host's lesson assistant bridge: it asks through `AssistantService.forLesson`, so every question goes to `api.ask_assistant` on the platform gateway with `in_lesson: true`, the lesson's current subtopic as `subtopic_ref` (empty before the first), and the transcript under the lesson session id. `ask()` completes when the answer or the failure has arrived and never throws for a backend failure. lms_sdk 1.46.1's lesson route uses it for real (non-demo) sessions; before, only the demo lane existed, so nothing sent `in_lesson: true`.
