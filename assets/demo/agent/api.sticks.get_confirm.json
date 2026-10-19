@@ -1,0 +1,119 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "tumi@acme.rokct.ai": {
+        "confirm": {
+          "id": "CONF-0015",
+          "kind": "draft",
+          "stick": "tumi@acme.rokct.ai",
+          "requester": "kabelo@acme.rokct.ai",
+          "request": "MSG-0044",
+          "task": "TASK-0042",
+          "question": "Tumi drafted an email to the Musina municipality, asked by Kabelo. Send it?",
+          "deadline": "$now_iso+2d",
+          "draft": {
+            "channel": "email",
+            "to": [
+              "bids@musina.example"
+            ],
+            "subject": "Musina ICT bid pack",
+            "body": "Good day, please find our bid pack attached. Regards, Acme",
+            "attachments": [
+              {
+                "name": "bid-pack.pdf"
+              }
+            ]
+          },
+          "options": [
+            {
+              "key": "send",
+              "label": "Send",
+              "kind": "primary"
+            },
+            {
+              "key": "edit",
+              "label": "Edit",
+              "kind": "secondary"
+            },
+            {
+              "key": "dont_send",
+              "label": "Don't send",
+              "kind": "secondary"
+            }
+          ]
+        }
+      },
+      "thandi@acme.rokct.ai": {
+        "confirm": {
+          "id": "CONF-0012",
+          "kind": "permission",
+          "stick": "thandi@acme.rokct.ai",
+          "requester": "kabelo@acme.rokct.ai",
+          "data": {
+            "key": "tender_pricing",
+            "label": "Tender pricing"
+          },
+          "request": "MSG-0040",
+          "task": "TASK-0042",
+          "question": "Kabelo asks Thandi for the tender pricing, for the Musina invoice. Allow it?",
+          "deadline": null,
+          "options": [
+            {
+              "key": "allow",
+              "label": "Allow this once",
+              "kind": "primary"
+            },
+            {
+              "key": "deny",
+              "label": "Don't share",
+              "kind": "secondary"
+            }
+          ]
+        }
+      },
+      "kabelo@acme.rokct.ai": {
+        "confirm": {
+          "id": "CONF-0016",
+          "kind": "draft",
+          "stick": "kabelo@acme.rokct.ai",
+          "requester": null,
+          "request": "MSG-0046",
+          "task": "TASK-0044",
+          "question": "Kabelo wants to phone Mokoena Builders about an unpaid invoice. Make the call?",
+          "deadline": null,
+          "draft": {
+            "channel": "call",
+            "to": [
+              "+27 82 555 0147"
+            ],
+            "subject": "Follow up on the outstanding R 12 400.00 (INV-0412)",
+            "body": "Good day, can I speak to Mr Mokoena?\n\nThis is Kabelo from Acme. I am following up on an outstanding amount of R 12 400.00 on invoice INV-0412, due 30 Nov. Can you tell me when it will be paid?",
+            "attachments": [],
+            "call": "CALL-0008"
+          },
+          "options": [
+            {
+              "key": "send",
+              "label": "Make the call",
+              "kind": "primary"
+            },
+            {
+              "key": "edit",
+              "label": "Edit",
+              "kind": "secondary"
+            },
+            {
+              "key": "dont_send",
+              "label": "Don't call",
+              "kind": "secondary"
+            }
+          ]
+        }
+      }
+    },
+    "default": {
+      "confirm": null
+    }
+  }
+}
