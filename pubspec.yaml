@@ -22,6 +22,10 @@ dependencies:
     path: .rokct/cache/users
   comms_sdk:
     path: .rokct/cache/comms
+  productivity_sdk:
+    path: .rokct/cache/productivity
+  processing_sdk:
+    path: .rokct/cache/processing
   telemetry_sdk:
     path: .rokct/cache/telemetry
   flutter:
@@ -144,6 +148,7 @@ flutter:
     - assets/demo/agent/
     - assets/demo/auth/
     - assets/demo/comms/
+    - assets/demo/productivity/
     - assets/demo/users/
     - assets/images/app_logo.png
     - assets/images/card.png
