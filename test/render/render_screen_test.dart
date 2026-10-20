@@ -74,7 +74,8 @@ import 'package:users_sdk/users_sdk.dart' show UsersSdkDependencies;
 // agent_sdk's DI is not on the barrel (the Sticks flavor is app_type gated),
 // so the registration is imported from its src path, as the template allows.
 // ignore: implementation_imports
-import 'package:agent_sdk/src/common/di/agent_di.dart' show AgentSdkDependencies;
+import 'package:agent_sdk/src/common/di/agent_di.dart'
+    show AgentSdkDependencies;
 import 'package:agent_sdk/sticks.dart';
 
 // ---------------------------------------------------------------------------
