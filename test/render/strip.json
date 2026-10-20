@@ -1,0 +1,61 @@
+{
+  "title": "Team home - Sticks shell",
+  "kicker": "render-strip kit adoption - real render, demo data",
+  "lede": "Not hand-drawn. Both frames below are the actual Sticks team page - SticksShell at its first tab, the app's home - rendered headlessly to PNG at 390 logical px / dpr 3, with every numbered point placed automatically from the widget's measured rect.",
+  "fonts": "system",
+  "chips_default": true,
+  "frames": [
+    {
+      "section": "Shipped - what main renders today",
+      "caption": "team home - dark (app default)",
+      "status": "SHIPPED",
+      "png": "sticks_team_home_dark.png",
+      "rects": "sticks_team_home_dark.json",
+      "note": "sticks main, composed SDK set from composer.json"
+    },
+    {
+      "section": "Shipped - what main renders today",
+      "caption": "team home - light",
+      "status": "SHIPPED",
+      "png": "sticks_team_home_light.png",
+      "rects": "sticks_team_home_light.json",
+      "note": "sticks main, composed SDK set from composer.json"
+    }
+  ],
+  "labels": {
+    "sticks.team_screen": "team page - your Sticks and their status",
+    "sticks.team.stick_1": "Stick 1 - team row with figure and status",
+    "sticks.team.stick_2": "Stick 2 - team row with figure and status",
+    "sticks.team.stick_3": "Stick 3 - team row with figure and status",
+    "sticks.team.stick_4": "Stick 4 - team row with figure and status",
+    "sticks.tab_bar": "tab bar - Team, Tasks, Asks, Reports"
+  },
+  "numbering": {
+    "map": {
+      "sticks.team_screen": 1,
+      "sticks.team.stick_1": 2,
+      "sticks.team.stick_2": 3,
+      "sticks.team.stick_3": 4,
+      "sticks.team.stick_4": 5,
+      "sticks.tab_bar": 6
+    },
+    "retired": {}
+  },
+  "notes": [
+    {
+      "kicker": "note - how these renders were produced",
+      "body": [
+        "A widget-test harness (test/render/render_screen_test.dart); no app code touched. It wraps the real SticksShell in agent_sdk's SticksScope and SticksPage - the same host the installed sticks_pages.dart uses - and renders it at 390 logical px (dpr 3) at the full content height.",
+        "The data is the SDKs' own demo data. StickRepository reads the api.sticks.* cmds through the platform gateway; base_sdk's DemoGatewayInterceptor answers them from agent_sdk's fixtures (assets/demo/sticks).",
+        "Real fonts: Inter and Montserrat are the genuine files Google serves, committed under test/render/fonts/ and verified by google_fonts' own length and SHA-256 check."
+      ]
+    },
+    {
+      "kicker": "what these frames deliberately do NOT show",
+      "body": [
+        "The stick rows are the demo fixture team. Their navigation is a no-op in the harness, so no sub-page is captured; the strip shows the team page only.",
+        "The brand palette is not applied in this harness, so colours are the AppStyle defaults."
+      ]
+    }
+  ]
+}
