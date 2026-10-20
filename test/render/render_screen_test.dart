@@ -105,7 +105,7 @@ const Size kDesignSize = Size(375, 812);
 // The demo wiring. Registrations run in composed-app order.
 // ---------------------------------------------------------------------------
 
-/// TODO(harness) 2/8 - the SDK's own demo data. THIS IS THE MAIN PATH.
+/// Step 2/8 - the SDK's own demo data. THIS IS THE MAIN PATH.
 ///
 /// Registers the shared kernel, the auth/user SDKs and agent_sdk. The Sticks
 /// screens read the `api.sticks.*` cmds through the platform gateway, which
@@ -122,18 +122,18 @@ Future<void> registerDemoDependencies() async {
   AgentSdkDependencies.register(getIt);
 }
 
-/// TODO(harness) 3/8 - EXCEPTION: device history the demo mode cannot supply.
+/// Step 3/8 - EXCEPTION: device history the demo mode cannot supply.
 ///
 /// EMPTY. The team, tasks and asks are the demo fixtures; nothing the device
 /// accumulates through use is needed for the team page.
 Future<void> seedDeviceHistory(WidgetTester tester) async {}
 
-/// TODO(harness) 4/8 - EXCEPTION: stub a service with no demo implementation.
+/// Step 4/8 - EXCEPTION: stub a service with no demo implementation.
 ///
 /// EMPTY. StickRepository answers from the demo fixtures, so nothing is stubbed.
 void registerExceptionStubs() {}
 
-/// TODO(harness) 5/8 - register sections / routes / gates.
+/// Step 5/8 - register sections / routes / gates.
 ///
 /// Nothing to register: the Sticks shell has no section registry.
 void registerScreen() {}
@@ -171,7 +171,7 @@ class _HarnessNav implements SticksNav {
   void back() {}
 }
 
-/// TODO(harness) 6/8 - the widget under test.
+/// Step 6/8 - the widget under test.
 ///
 /// The real Sticks home in the host's own wrapping: SticksScope carries the
 /// data source and navigation, SticksPage carries the Sticks chrome, and
@@ -198,7 +198,7 @@ Widget buildScreen({required bool dark}) {
   );
 }
 
-/// TODO(harness) 7/8 - the elements the review points at.
+/// Step 7/8 - the elements the review points at.
 ///
 /// `key` is the stable identity the composer binds a number to for the life
 /// of the page; the committed map lives in test/render/strip.json.
@@ -223,7 +223,7 @@ List<ElementSpec> elementSpecs() {
 }
 
 // ---------------------------------------------------------------------------
-// TODO(harness) 8/8 - real fonts.
+// Step 8/8 - real fonts.
 //
 // Without real faces every glyph renders as the Ahem/FlutterTest block font
 // and the PNG is worthless, so a missing face is a HARD FAILURE here.
