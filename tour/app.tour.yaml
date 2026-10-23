@@ -15,6 +15,9 @@ video:
   # these the tour script falls back to the composed theme default (#FF6600).
   brand_color: "#F6F5F2"
   accent_color: "#1C1C1C"
+store:
+  # Play feature graphic hero: a Stick's own page - the character and the pending permission sell the product.
+  feature_step: sticks_stick
 setup:
   # Read by auth_sdk's demo_sign_in step. The demo login fixture accepts any
   # password and hands back this account.
