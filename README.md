@@ -13,10 +13,18 @@ tour run, so new screens appear here automatically.
 | Welcome | Auth Login | Auth Register |
 | :---: | :---: | :---: |
 | ![Welcome][s01] | ![Auth Login][s02] | ![Auth Register][s03] |
-| **Auth Reset Password** | **Sticks Team** | **Sticks Stick** |
-| ![Auth Reset Password][s04] | ![Sticks Team][s05] | ![Sticks Stick][s06] |
-| **Sticks Task** | | |
-| ![Sticks Task][s07] | | |
+| **Auth Reset Password** | **Sticks Team** | **Sticks Tasks** |
+| ![Auth Reset Password][s04] | ![Sticks Team][s05] | ![Sticks Tasks][s06] |
+| **Sticks Stick** | **Sticks Task** | **Sticks Ask** |
+| ![Sticks Stick][s07] | ![Sticks Task][s08] | ![Sticks Ask][s09] |
+| **Sticks Give** | **Sticks Profile** | **Sticks Hire** |
+| ![Sticks Give][s10] | ![Sticks Profile][s11] | ![Sticks Hire][s12] |
+| **Sticks Setup** | **Sticks Inbox** | **Sticks Calls** |
+| ![Sticks Setup][s13] | ![Sticks Inbox][s14] | ![Sticks Calls][s15] |
+| **Sticks Talk** | **Sticks Report** | **Sticks Settings** |
+| ![Sticks Talk][s16] | ![Sticks Report][s17] | ![Sticks Settings][s18] |
+| **Sticks Lock** | | |
+| ![Sticks Lock][s19] | | |
 
 The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
 with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
@@ -26,8 +34,20 @@ with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
 [s03]: marketing/tour/store/03-auth_register.png
 [s04]: marketing/tour/store/04-auth_reset_password.png
 [s05]: marketing/tour/store/05-sticks_team.png
-[s06]: marketing/tour/store/06-sticks_stick.png
-[s07]: marketing/tour/store/07-sticks_task.png
+[s06]: marketing/tour/store/06-sticks_tasks.png
+[s07]: marketing/tour/store/07-sticks_stick.png
+[s08]: marketing/tour/store/08-sticks_task.png
+[s09]: marketing/tour/store/09-sticks_ask.png
+[s10]: marketing/tour/store/10-sticks_give.png
+[s11]: marketing/tour/store/11-sticks_profile.png
+[s12]: marketing/tour/store/12-sticks_hire.png
+[s13]: marketing/tour/store/13-sticks_setup.png
+[s14]: marketing/tour/store/14-sticks_inbox.png
+[s15]: marketing/tour/store/15-sticks_calls.png
+[s16]: marketing/tour/store/16-sticks_talk.png
+[s17]: marketing/tour/store/17-sticks_report.png
+[s18]: marketing/tour/store/18-sticks_settings.png
+[s19]: marketing/tour/store/19-sticks_lock.png
 <!-- @generated-tour-gallery-end -->
 
 <!-- @generated-render-strip-start -->
