@@ -168,6 +168,7 @@ flutter:
     - assets/images/splash.png
     - assets/images/splash1.png
     - assets/images/splash2.png
+    - assets/images/splash_dark.png
     - assets/images/visa.png
     - assets/lottie/girl_empty.json
     - assets/lottie/not-found.json
@@ -197,8 +198,10 @@ flutter:
     - assets/images/splash.png  # Add this line to explicitly include splash.png
     - assets/images/splash1.png
     - assets/images/splash2.png
+    - assets/images/splash_dark.png
 flutter_native_splash:
   background_image: 'assets/images/splash2.png'
+  background_image_dark: 'assets/images/splash_dark.png'
   fullscreen: true
   android: true
   ios: true
