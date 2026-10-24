@@ -54,11 +54,11 @@ See what a Stick owns, what it is doing now, and what needs you.
 
 Approve the work a Stick prepared before anything is sent.
 
-## 9. A Stick asks you
+## 9. Ask a Stick
 
-![A Stick asks you](screenshots/09-sticks_ask.png)
+![Ask a Stick](screenshots/09-sticks_ask.png)
 
-A Stick asks you before anything leaves the company.
+Ask your Stick a question and it answers from its own work.
 
 ## 10. Give a task
 
