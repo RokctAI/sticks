@@ -168,7 +168,6 @@ flutter:
     - assets/images/splash.png
     - assets/images/splash1.png
     - assets/images/splash2.png
-    - assets/images/splash_dark.png
     - assets/images/visa.png
     - assets/lottie/girl_empty.json
     - assets/lottie/not-found.json
