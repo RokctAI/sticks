@@ -16,15 +16,17 @@ video:
   brand_color: "#F6F5F2"
   accent_color: "#1C1C1C"
 store:
-  # Play feature graphic hero: a Stick's own page - the character and the pending permission sell the product.
-  feature_step: sticks_stick
+  # Play feature graphic: choose a Stick (hire) beside configuring it (setup), the two moments that make a Stick yours.
+  feature_step: sticks_hire
   feature_style:
     bg: "#F6F5F2"
     ink: "#1B1B1B"
     accent: "#BFE3C6"
     shape: "circle"
-    layout: "right"
-    headline: "Your team never clocks out."
+    layout: "duo"
+    hero2: sticks_setup
+    tilt: 5
+    headline: "Pick a Stick. Make it yours."
 setup:
   # Read by auth_sdk's demo_sign_in step. The demo login fixture accepts any
   # password and hands back this account.
