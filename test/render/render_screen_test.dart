@@ -67,7 +67,12 @@ import 'package:auth_sdk/auth_sdk.dart' show AuthSdkDependencies;
 import 'package:auth_sdk/src/common/services/session_profile.dart'
     show sessionProfileOf;
 import 'package:base_sdk/base_sdk.dart'
-    show BaseSdkDependencies, DemoSession, LocalStorage, PlatformGateway;
+    show
+        BaseSdkDependencies,
+        DemoSession,
+        FloatingBottomNav,
+        LocalStorage,
+        PlatformGateway;
 // Deep imports into base_sdk's src/ are expected in a harness (the kit's
 // template says so): the auth facade is not on the base_sdk barrel.
 import 'package:base_sdk/src/domain/interface/auth.dart'
@@ -83,6 +88,8 @@ import 'package:users_sdk/users_sdk.dart' show UsersSdkDependencies;
 import 'package:agent_sdk/src/common/di/agent_di.dart'
     show AgentSdkDependencies;
 import 'package:agent_sdk/sticks.dart';
+
+import 'vector_svg.dart';
 
 // ---------------------------------------------------------------------------
 // Render settings - phone size the reviews are judged at.
@@ -100,10 +107,13 @@ const double kProbeHeight = 2600;
 /// Slack below the last element in the final frame, in logical pixels.
 const double kBottomPadding = 20;
 
-/// Elements anchored to the VIEWPORT, not to the end of the content. The
-/// SticksBar tab bar is pinned to the bottom of the shell, so it is reserved
-/// as chrome rather than counted as content height.
-const Set<String> kViewportAnchored = <String>{'sticks.tab_bar'};
+/// Phone height used when the content is taller than [kProbeHeight] and
+/// cannot be shrunk to fit (iPhone 12-15 class, 390 x 844).
+const double kDeviceHeight = 844;
+
+/// How long (real time) the harness waits for the demo data to land before
+/// it fails the test instead of capturing an empty or loading screen.
+const Duration kReadyTimeout = Duration(seconds: 30);
 
 /// The app's design size, straight from the composed app_widget.
 const Size kDesignSize = Size(375, 812);
@@ -224,10 +234,23 @@ List<ElementSpec> elementSpecs() {
     ElementSpec(
       key: 'sticks.tab_bar',
       label: 'Tab bar - Team, Tasks, Asks, Reports',
-      finder: find.byType(SticksBar),
+      // The shell's tab bar is base_sdk's shared FloatingBottomNav. (SticksBar
+      // is agent_sdk's progress bar - matching it here never found the tabs.)
+      finder: find.byType(FloatingBottomNav),
     ),
   ];
 }
+
+/// What must be on screen before the frame is captured: the demo team rows
+/// (one StickFigure per Stick) AND the tab bar (FloatingBottomNav). Capture also waits for every
+/// CircularProgressIndicator to be gone. If this is not true within
+/// [kReadyTimeout] the test FAILS rather than writing a blank or spinning
+/// frame.
+List<Finder> readyFinders() => <Finder>[
+      find.descendant(
+          of: find.byType(TeamScreen), matching: find.byType(StickFigure)),
+      find.byType(FloatingBottomNav),
+    ];
 
 // ---------------------------------------------------------------------------
 // Step 8/8 - real fonts.
@@ -292,6 +315,7 @@ Future<void> loadRealFonts() async {
       loader.addFont(Future.value(ByteData.view(bytes.buffer)));
     }
     await loader.load();
+    VectorSvgFonts.register(family, files);
   }
 
   final fontsDir = Directory(_fontDir());
@@ -302,6 +326,7 @@ Future<void> loadRealFonts() async {
     );
   }
   google_fonts_base.httpClient = _OfflineGoogleFontsClient(fontsDir);
+  VectorSvgFonts.scanDirectory(fontsDir);
 
   await GoogleFonts.pendingFonts(<TextStyle>[
     GoogleFonts.inter(fontWeight: FontWeight.w400),
@@ -354,10 +379,74 @@ Future<void> loadRealFonts() async {
         'on the page would render as a blank box');
   }
   await load('packages/remixicon/Remix', <File>[remix]);
+
+  await _loadAgentSdkFonts(load);
+}
+
+/// The Sticks screens draw every word in agent_sdk's OWN bundled faces
+/// (agent/dart pubspec `fonts:` - Montserrat for headings, Nunito for body),
+/// asked for as `TextStyle(fontFamily: 'Montserrat', package: 'agent_sdk')`,
+/// i.e. the family `packages/agent_sdk/Montserrat`. A widget test never reads
+/// the pubspec font manifest, so without this every Sticks label renders as
+/// the FlutterTest block font. They are registered under BOTH names: the
+/// package-qualified one the widgets use, and the plain one for any style
+/// that drops `package:`.
+Future<void> _loadAgentSdkFonts(
+    Future<void> Function(String family, List<File> files) load) async {
+  final root = _packageRoot('agent_sdk');
+  if (root == null) {
+    throw StateError('agent_sdk is not in .dart_tool/package_config.json - '
+        'run the compose and `flutter pub get` first');
+  }
+  final fontsDir = Directory('${root.path}/lib/assets/fonts');
+  for (final family in const <String>['Montserrat', 'Nunito']) {
+    final files = fontsDir.existsSync()
+        ? (fontsDir
+            .listSync()
+            .whereType<File>()
+            .where((f) =>
+                f.uri.pathSegments.last.startsWith('$family-') &&
+                f.path.endsWith('.ttf'))
+            .toList()
+          ..sort((a, b) => a.path.compareTo(b.path)))
+        : <File>[];
+    if (files.isEmpty) {
+      throw StateError('no $family-*.ttf under ${fontsDir.path} - every Sticks '
+          'label would render as the FlutterTest block font');
+    }
+    await load('packages/agent_sdk/$family', files);
+    await load(family, files);
+  }
+}
+
+/// Root directory of [package] as `flutter pub get` resolved it, or null.
+Directory? _packageRoot(String package) {
+  final config =
+      File('${Directory.current.path}/.dart_tool/package_config.json');
+  if (!config.existsSync()) return null;
+  final json = jsonDecode(config.readAsStringSync()) as Map<String, dynamic>;
+  for (final entry in (json['packages'] as List<dynamic>)) {
+    final p = entry as Map<String, dynamic>;
+    if (p['name'] != package) continue;
+    final rootUri = config.uri.resolve(p['rootUri'] as String);
+    return Directory.fromUri(rootUri);
+  }
+  return null;
 }
 
 /// App-wide state the screen reads before it builds, in main.dart's order.
 Future<void> primeAppState({required bool dark}) async {
+  // Each variant starts from nothing: no registrations, no session, no
+  // preferences left behind by the variant before it. Without this the
+  // second (light) frame never got past its loading spinner.
+  //
+  // rootBundle is the culprit that matters: it caches each loadString FUTURE,
+  // and base_sdk's DemoGatewayInterceptor reads every demo fixture through
+  // it. A load the first variant started inside its own fake-async zone and
+  // never finished stays in that cache, and the next variant awaits it
+  // forever. Clearing the cache makes every variant load its own fixtures.
+  rootBundle.clear();
+  await GetIt.I.reset();
   SharedPreferences.setMockInitialValues(<String, Object>{});
   await LocalStorage.init();
   await LocalStorage.setAppThemeMode(dark);
@@ -390,7 +479,9 @@ Future<void> persistDemoUser() async {
 }
 
 // ===========================================================================
-// Below here is the proven mechanism (kit template). Leave it alone.
+// Below here is the mechanism (kit template). It waits for the screen to be
+// ready (no fixed sleep), fits the frame to the real content, and fails
+// rather than capturing a blank or loading frame.
 // ===========================================================================
 
 /// One numbered point: a finder, a stable key, and a human label.
@@ -446,13 +537,135 @@ void _mockAbsentPlugins() {
   }
 }
 
-/// Lets REAL async work complete, then pumps frames so the setStates land.
-Future<void> _drain(WidgetTester tester, {int rounds = 8}) async {
-  for (var i = 0; i < rounds; i++) {
-    await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 120)));
-    await tester.pump(const Duration(milliseconds: 250));
+/// Pumps until the screen is READY - every [readyFinders] matches and no
+/// CircularProgressIndicator is showing - letting real async work (the demo
+/// gateway, sqlite) run between frames. Replaces a fixed ~1s wait that
+/// captured the light frame while it was still loading. Fails the test on
+/// [kReadyTimeout] instead of writing a broken frame.
+Future<void> _pumpUntilReady(WidgetTester tester, {String phase = ''}) async {
+  final deadline = DateTime.now().add(kReadyTimeout);
+  final spinner = find.byType(CircularProgressIndicator);
+  var stableFrames = 0;
+  while (true) {
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump(const Duration(milliseconds: 100));
+    final ready = readyFinders().every((f) => f.evaluate().isNotEmpty) &&
+        spinner.evaluate().isEmpty;
+    // Two ready frames in a row, so a list that is still filling in (or a
+    // spinner about to come back for a second request) is not captured
+    // mid-way.
+    stableFrames = ready ? stableFrames + 1 : 0;
+    if (stableFrames >= 2) break;
+    if (DateTime.now().isAfter(deadline)) {
+      final missing = readyFinders()
+          .where((f) => f.evaluate().isEmpty)
+          .map((f) => f.describeMatch(Plurality.zero))
+          .toList();
+      fail('screen not ready after ${kReadyTimeout.inSeconds}s$phase: '
+          '${missing.isEmpty ? '' : 'missing ${missing.join(', ')}; '}'
+          '${spinner.evaluate().length} spinner(s) still showing. '
+          'Refusing to capture a blank or loading frame.');
+    }
   }
+  // Let entrance animations finish so nothing is captured half-faded.
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
+/// Rect, in logical px, of every painted leaf under the boundary: text,
+/// images, custom paint, decorated and physical boxes. Offstage subtrees are
+/// skipped.
+Map<RenderBox, Rect> _paintedLeaves(RenderObject root) {
+  final out = <RenderBox, Rect>{};
+  void visit(RenderObject o) {
+    if (o is RenderOffstage && o.offstage) return;
+    // An IndexedStack lays out every tab but paints only the selected one;
+    // the hidden tabs must not count as content.
+    if (o is RenderIndexedStack) {
+      var child = o.firstChild;
+      for (var i = 0; child != null; i++) {
+        if (i == o.index) visit(child);
+        child = o.childAfter(child);
+      }
+      return;
+    }
+    if (o is RenderBox &&
+        o.attached &&
+        o.hasSize &&
+        (o is RenderParagraph ||
+            o is RenderImage ||
+            o is RenderCustomPaint ||
+            o is RenderDecoratedBox ||
+            o is RenderPhysicalModel ||
+            o is RenderPhysicalShape)) {
+      final rect = MatrixUtils.transformRect(
+          o.getTransformTo(root), Offset.zero & o.size);
+      if (rect.width > 0 && rect.height > 0) out[o] = rect;
+    }
+    o.visitChildren(visit);
+  }
+
+  root.visitChildren(visit);
+  return out;
+}
+
+/// How tall the frame must be to show all of the content and nothing else.
+///
+/// The screen root (and any background) always fills the probe viewport, so
+/// its rect says nothing about the content. Instead the screen is laid out at
+/// two probe heights and every painted leaf is compared:
+///   * a leaf that did not move is CONTENT (laid out from the top);
+///   * a leaf that moved with the viewport bottom by the same amount and kept
+///     its size is PINNED to the bottom (tab bar, floating button) and is
+///     reserved below the content so it never covers it;
+///   * anything else (stretched backgrounds, centred fills) is ignored.
+/// Returns null when the content does not fit inside [kProbeHeight].
+Future<double?> _contentHeight(
+    WidgetTester tester, RenderObject Function() root) async {
+  const shrink = 400.0;
+  final tall = _paintedLeaves(root());
+  _setViewHeight(tester, kProbeHeight - shrink);
+  await _pumpUntilReady(tester, phase: ' (second probe)');
+  final short = _paintedLeaves(root());
+  _setViewHeight(tester, kProbeHeight);
+  await _pumpUntilReady(tester, phase: ' (back to probe height)');
+
+  var contentBottom = 0.0;
+  var pinnedReserve = 0.0;
+  var matched = 0;
+  for (final entry in tall.entries) {
+    final a = entry.value;
+    final b = short[entry.key];
+    if (b != null) matched++;
+    if (b == null || (a.bottom - b.bottom).abs() < 0.5) {
+      if (a.bottom > contentBottom) contentBottom = a.bottom;
+    } else if ((a.bottom - b.bottom - shrink).abs() < 0.5 &&
+        (a.height - b.height).abs() < 0.5) {
+      final reserve = kProbeHeight - a.top;
+      if (reserve > pinnedReserve) pinnedReserve = reserve;
+    }
+  }
+  if (matched == 0) {
+    throw StateError('the screen rebuilt every render object between the two '
+        'probes, so content and viewport-pinned chrome cannot be told apart');
+  }
+  if (contentBottom <= 0) {
+    throw StateError('no painted content found under the screen');
+  }
+  final height = contentBottom + pinnedReserve + kBottomPadding;
+  // ignore: avoid_print
+  print('render: content ends at ${contentBottom.toStringAsFixed(1)}, '
+      'pinned chrome needs ${pinnedReserve.toStringAsFixed(1)} -> '
+      'frame height ${height.toStringAsFixed(1)}');
+  if (contentBottom + pinnedReserve >= kProbeHeight - 1) return null;
+  return height;
+}
+
+void _setViewHeight(WidgetTester tester, double height) {
+  tester.view.physicalSize =
+      Size(kLogicalWidth * kDevicePixelRatio, height * kDevicePixelRatio);
 }
 
 List<_Measured> _measure(WidgetTester tester, List<ElementSpec> specs) {
@@ -484,7 +697,7 @@ List<_Measured> _measure(WidgetTester tester, List<ElementSpec> specs) {
   return deduped;
 }
 
-/// Renders one variant end to end and writes out/<name>.png + out/<name>.json.
+/// Renders one variant end to end and writes `out/<name>.png` + `out/<name>.json`.
 Future<void> renderVariant(
   WidgetTester tester, {
   required bool dark,
@@ -516,32 +729,36 @@ Future<void> renderVariant(
     key: boundaryKey,
     child: buildScreen(dark: dark),
   ));
-  await _drain(tester);
+  await _pumpUntilReady(tester, phase: ' ($name)');
 
   var measured = _measure(tester, elementSpecs());
   expect(measured, isNotEmpty,
       reason: 'no elements matched - check elementSpecs() and the screen the '
           'harness pumps');
 
-  final content =
-      measured.where((m) => !kViewportAnchored.contains(m.key)).toList();
-  if (content.isEmpty) {
-    throw StateError('every measured element is viewport-anchored - there is '
-        'no content height to shrink to');
+  final fitted = await _contentHeight(
+      tester, () => boundaryKey.currentContext!.findRenderObject()!);
+  final double targetHeight;
+  if (fitted == null) {
+    targetHeight = kDeviceHeight;
+    // ignore: avoid_print
+    print('WARNING: $name is taller than the ${kProbeHeight.toInt()} px probe; '
+        'capturing one ${kDeviceHeight.toInt()} px phone screen instead.');
+  } else {
+    targetHeight = fitted.clamp(400.0, kProbeHeight);
   }
-  final contentBottom =
-      content.map((m) => m.rect.bottom).reduce((a, b) => a > b ? a : b);
-  final bottomChrome = measured
-      .where((m) => kViewportAnchored.contains(m.key))
-      .fold<double>(0, (a, m) => a > m.rect.height ? a : m.rect.height);
-  final targetHeight = (contentBottom + bottomChrome + kBottomPadding)
-      .clamp(400.0, kProbeHeight);
 
-  tester.view.physicalSize =
-      Size(kLogicalWidth * kDevicePixelRatio, targetHeight * kDevicePixelRatio);
-  await tester.pump(const Duration(milliseconds: 50));
-  await _drain(tester, rounds: 4);
+  _setViewHeight(tester, targetHeight);
+  await _pumpUntilReady(tester, phase: ' ($name, final height)');
   measured = _measure(tester, elementSpecs());
+
+  final blockGlyphs =
+      _blockGlyphTexts(boundaryKey.currentContext!.findRenderObject()!);
+  if (blockGlyphs.isNotEmpty) {
+    fail('${blockGlyphs.length} text(s) drawn in the FlutterTest block font - '
+        'register their family in loadRealFonts(): '
+        '${blockGlyphs.take(5).join(' | ')}');
+  }
 
   await tester.runAsync(() async {
     final boundary =
@@ -556,6 +773,12 @@ Future<void> renderVariant(
       'logicalWidth': kLogicalWidth,
       'logicalHeight': targetHeight,
       'devicePixelRatio': kDevicePixelRatio,
+      // Read by shared-workflows' frame quality gate, which refuses the
+      // frame if either count is non-zero.
+      'quality': <String, Object?>{
+        'spinners': find.byType(CircularProgressIndicator).evaluate().length,
+        'blockGlyphTexts': blockGlyphs.length,
+      },
       'elements': <Object>[
         for (var i = 0; i < measured.length; i++)
           <String, Object?>{
@@ -572,6 +795,54 @@ Future<void> renderVariant(
     File('${outDir.path}/$name.json')
         .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(sidecar));
   });
+
+  // EXPERIMENTAL, opt-in: the same frame as a true vector SVG (real shapes
+  // and <text>), next to the PNG. Off in CI until it has been reviewed.
+  if (Platform.environment['RENDER_VECTOR'] == '1') {
+    final recorder = VectorSvgRecorder(devicePixelRatio: kDevicePixelRatio)
+      ..paint(boundaryKey.currentContext!.findRenderObject()!);
+    final svg = await tester.runAsync(recorder.finish);
+    File('${outDir.path}/$name.vector.svg').writeAsStringSync(svg!);
+    // ignore: avoid_print
+    print('vector: $name.vector.svg - ${recorder.vectorTexts} text runs, '
+        '${recorder.rasterFallbacks} bitmap fallback(s), '
+        '${svg.length ~/ 1024} KB'
+        '${recorder.warnings.isEmpty ? '' : '; ${recorder.warnings.toSet().join('; ')}'}');
+  }
+}
+
+/// Texts on screen that are drawn in the FlutterTest/Ahem block font.
+///
+/// A block glyph advances exactly one em, so a single-line text whose width
+/// is (characters x font size) is in the block font: its family was never
+/// registered. Returned as `family: text` for the failure message.
+List<String> _blockGlyphTexts(RenderObject root) {
+  final hits = <String>[];
+  void visit(RenderObject o) {
+    if (o is RenderOffstage && o.offstage) return;
+    if (o is RenderParagraph && o.attached && o.hasSize) {
+      final text = o.text.toPlainText(includePlaceholders: false);
+      final style = o.text.style;
+      final size = style?.fontSize;
+      final chars = text.runes.length;
+      if (size != null &&
+          chars >= 3 &&
+          !text.contains('\n') &&
+          o.text is TextSpan &&
+          ((o.text as TextSpan).children?.isEmpty ?? true)) {
+        final width = o.getMaxIntrinsicWidth(double.infinity);
+        final em = o.textScaler.scale(size);
+        final spacing = (style?.letterSpacing ?? 0) * chars;
+        if ((width - spacing - chars * em).abs() < 0.5) {
+          hits.add('${style?.fontFamily ?? '(default)'}: "$text"');
+        }
+      }
+    }
+    o.visitChildren(visit);
+  }
+
+  root.visitChildren(visit);
+  return hits;
 }
 
 bool _fontsLoaded = false;
