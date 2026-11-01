@@ -45,9 +45,10 @@
     {
       "kicker": "note - how these renders were produced",
       "body": [
-        "A widget-test harness (test/render/render_screen_test.dart); no app code touched. It wraps the real SticksShell in agent_sdk's SticksScope and SticksPage - the same host the installed sticks_pages.dart uses - and renders it at 390 logical px (dpr 3) at the full content height.",
+        "A widget-test harness (test/render/render_screen_test.dart); no app code touched. It wraps the real SticksShell in agent_sdk's SticksScope and SticksPage - the same host the installed sticks_pages.dart uses - and renders it at 390 logical px (dpr 3) at the height of its real content.",
         "The data is the SDKs' own demo data. StickRepository reads the api.sticks.* cmds through the platform gateway; base_sdk's DemoGatewayInterceptor answers them from agent_sdk's fixtures (assets/demo/sticks).",
-        "Real fonts: Inter and Montserrat are the genuine files Google serves, committed under test/render/fonts/ and verified by google_fonts' own length and SHA-256 check."
+        "Real fonts: Inter and Montserrat are the genuine files Google serves, committed under test/render/fonts/ and verified by google_fonts' own length and SHA-256 check. The Sticks labels use agent_sdk's own bundled Montserrat and Nunito, which the harness loads from the composed package.",
+        "The harness waits until the demo team rows and the tab bar are on screen and no loading spinner is left, and fails instead of capturing an empty frame. The frame height is fitted to the real content, with the floating button and tab bar kept below it."
       ]
     },
     {
