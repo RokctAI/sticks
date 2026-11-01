@@ -89,6 +89,8 @@ import 'package:agent_sdk/src/common/di/agent_di.dart'
     show AgentSdkDependencies;
 import 'package:agent_sdk/sticks.dart';
 
+import 'vector_svg.dart';
+
 // ---------------------------------------------------------------------------
 // Render settings - phone size the reviews are judged at.
 // ---------------------------------------------------------------------------
@@ -313,6 +315,7 @@ Future<void> loadRealFonts() async {
       loader.addFont(Future.value(ByteData.view(bytes.buffer)));
     }
     await loader.load();
+    VectorSvgFonts.register(family, files);
   }
 
   final fontsDir = Directory(_fontDir());
@@ -323,6 +326,7 @@ Future<void> loadRealFonts() async {
     );
   }
   google_fonts_base.httpClient = _OfflineGoogleFontsClient(fontsDir);
+  VectorSvgFonts.scanDirectory(fontsDir);
 
   await GoogleFonts.pendingFonts(<TextStyle>[
     GoogleFonts.inter(fontWeight: FontWeight.w400),
@@ -791,6 +795,20 @@ Future<void> renderVariant(
     File('${outDir.path}/$name.json')
         .writeAsStringSync(const JsonEncoder.withIndent('  ').convert(sidecar));
   });
+
+  // EXPERIMENTAL, opt-in: the same frame as a true vector SVG (real shapes
+  // and <text>), next to the PNG. Off in CI until it has been reviewed.
+  if (Platform.environment['RENDER_VECTOR'] == '1') {
+    final recorder = VectorSvgRecorder(devicePixelRatio: kDevicePixelRatio)
+      ..paint(boundaryKey.currentContext!.findRenderObject()!);
+    final svg = await tester.runAsync(recorder.finish);
+    File('${outDir.path}/$name.vector.svg').writeAsStringSync(svg!);
+    // ignore: avoid_print
+    print('vector: $name.vector.svg - ${recorder.vectorTexts} text runs, '
+        '${recorder.rasterFallbacks} bitmap fallback(s), '
+        '${svg.length ~/ 1024} KB'
+        '${recorder.warnings.isEmpty ? '' : '; ${recorder.warnings.toSet().join('; ')}'}');
+  }
 }
 
 /// Texts on screen that are drawn in the FlutterTest/Ahem block font.
