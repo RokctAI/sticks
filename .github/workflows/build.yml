@@ -93,7 +93,14 @@ jobs:
       # Deployment Configuration (Immediate release on Main)
       release_strategy: 'weekly'
       build_android: true
-      windows_installer: false
+      # Build the Windows desktop app and attach it to releases, as paas_manager
+      # and paas_driver do. windows/ is committed in this repo (desktop_sdk's
+      # ${package}-parameterized runner, with the Sticks name and smiling-face
+      # icon set by hand), like android/.
+      build_windows: true
+      # Ship the Windows release as a single Inno Setup installer
+      # (sticks-windows-setup-v<version>.exe) built by universal-release.yml.
+      windows_installer: true
       app_display_name: 'Sticks'
       build_hms: false
       # Environment configuration
