@@ -1,0 +1,10 @@
+{
+  "sticks": [
+    {
+      "id": "sizwe@acme.rokct.ai",
+      "name": "Sizwe",
+      "role": "Stock Clerk",
+      "archived_at": "$now_iso-3w"
+    }
+  ]
+}

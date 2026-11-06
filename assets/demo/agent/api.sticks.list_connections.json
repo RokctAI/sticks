@@ -1,0 +1,22 @@
+{
+  "connections": [
+    {
+      "id": "CON-1",
+      "name": "Gmail",
+      "provider": "Google",
+      "status": "connected"
+    },
+    {
+      "id": "CON-2",
+      "name": "Google Calendar",
+      "provider": "Google",
+      "status": "connected"
+    },
+    {
+      "id": "CON-3",
+      "name": "Xero",
+      "provider": "Xero",
+      "status": "error"
+    }
+  ]
+}

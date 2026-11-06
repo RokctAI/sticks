@@ -1,0 +1,74 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "thandi@acme.rokct.ai": {
+        "items": [
+          {
+            "id": "NP-1",
+            "title": "Confirm Eskom visit time",
+            "status": "open",
+            "updated": "$now_iso-1h"
+          },
+          {
+            "id": "NP-2",
+            "title": "Book venue for the staff meeting",
+            "status": "parked",
+            "updated": "$now_iso-1d"
+          },
+          {
+            "id": "NP-3",
+            "title": "Send Ray the weekly diary",
+            "status": "done",
+            "updated": "$now_iso-2d"
+          }
+        ]
+      },
+      "tumi@acme.rokct.ai": {
+        "items": [
+          {
+            "id": "NP-4",
+            "title": "Get B-BBEE certificate copy",
+            "status": "open",
+            "updated": "$now_iso-3h"
+          },
+          {
+            "id": "NP-5",
+            "title": "Check CIDB grade for DWS-2026-114",
+            "status": "done",
+            "updated": "$now_iso-1d"
+          }
+        ]
+      },
+      "kabelo@acme.rokct.ai": {
+        "items": [
+          {
+            "id": "NP-6",
+            "title": "Match two debit orders",
+            "status": "done",
+            "updated": "$now_iso-90m"
+          },
+          {
+            "id": "NP-7",
+            "title": "Chase Mokoena for INV-0412",
+            "status": "open",
+            "updated": "$now_iso-1d"
+          }
+        ]
+      },
+      "naledi@acme.rokct.ai": {
+        "items": [
+          {
+            "id": "NP-8",
+            "title": "Follow up the 40-seat quote",
+            "status": "open",
+            "updated": "$now_iso-5h"
+          }
+        ]
+      }
+    },
+    "default": {
+      "items": []
+    }
+  }
+}

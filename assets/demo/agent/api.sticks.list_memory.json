@@ -1,0 +1,61 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "thandi@acme.rokct.ai": {
+        "notes": [
+          {
+            "id": "MEM-0001",
+            "path": "owner/preferences.md",
+            "content": "Ray prefers short WhatsApp-style summaries. No calls before 08:00. Meetings go in the shared diary, never the personal one.",
+            "revision": 3,
+            "updated": "$now_iso-2d"
+          },
+          {
+            "id": "MEM-0002",
+            "path": "contacts/key-people.md",
+            "content": "Sipho (Helios) handles the sachet machine. Lerato at the bank answers on email, not phone.",
+            "revision": 1,
+            "updated": "$now_iso-6d"
+          }
+        ]
+      },
+      "tumi@acme.rokct.ai": {
+        "notes": [
+          {
+            "id": "MEM-0003",
+            "path": "tenders/what-we-bid.md",
+            "content": "Bid on water supply, logistics and courier tenders in Limpopo. Skip anything needing a CIDB grade above 3.",
+            "revision": 2,
+            "updated": "$now_iso-1d"
+          }
+        ]
+      },
+      "kabelo@acme.rokct.ai": {
+        "notes": [
+          {
+            "id": "MEM-0004",
+            "path": "accounts/payment-terms.md",
+            "content": "Standard terms are 30 days. South River pays on the 25th. Never write off a debt without Ray's OK.",
+            "revision": 4,
+            "updated": "$now_iso-3d"
+          }
+        ]
+      },
+      "naledi@acme.rokct.ai": {
+        "notes": [
+          {
+            "id": "MEM-0005",
+            "path": "sales/pricing.md",
+            "content": "Quote 500ml at R6.50 for 1,000+ units. Free delivery inside Musina.",
+            "revision": 2,
+            "updated": "$now_iso-4d"
+          }
+        ]
+      }
+    },
+    "default": {
+      "notes": []
+    }
+  }
+}

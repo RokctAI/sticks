@@ -1,0 +1,98 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "thandi@acme.rokct.ai": {
+        "routines": [
+          {
+            "id": "RTN-0001",
+            "stick": "thandi@acme.rokct.ai",
+            "name": "Morning inbox check",
+            "prompt": "Read the shared inbox, sort what came in overnight and tell me what needs me today.",
+            "schedule": [
+              "0 8 * * 1-5"
+            ],
+            "on": true,
+            "last_run": "$now_iso-1d",
+            "next_run": "$now_iso+14h"
+          },
+          {
+            "id": "RTN-0002",
+            "stick": "thandi@acme.rokct.ai",
+            "name": "Friday diary sweep",
+            "prompt": "Look at next week's diary and ask me about any clashes.",
+            "schedule": [
+              "0 15 * * 5"
+            ],
+            "on": false,
+            "last_run": "$now_iso-7d",
+            "next_run": null
+          }
+        ]
+      },
+      "tumi@acme.rokct.ai": {
+        "routines": [
+          {
+            "id": "RTN-0003",
+            "stick": "tumi@acme.rokct.ai",
+            "name": "New tenders scan",
+            "prompt": "Check the eTenders portal for new tenders in water and logistics and draft a one-line summary for each.",
+            "schedule": [
+              "0 7 * * *"
+            ],
+            "on": true,
+            "last_run": "$now_iso-17h",
+            "next_run": "$now_iso+7h"
+          }
+        ]
+      },
+      "kabelo@acme.rokct.ai": {
+        "routines": [
+          {
+            "id": "RTN-0004",
+            "stick": "kabelo@acme.rokct.ai",
+            "name": "Overdue invoices",
+            "prompt": "List invoices more than 30 days overdue and draft a polite reminder for each. Ask me before sending.",
+            "schedule": [
+              "0 9 * * 1"
+            ],
+            "on": true,
+            "last_run": "$now_iso-3d",
+            "next_run": "$now_iso+4d"
+          },
+          {
+            "id": "RTN-0005",
+            "stick": "kabelo@acme.rokct.ai",
+            "name": "Month-end pack",
+            "prompt": "Put together the month-end pack: bank reconciliation, debtors and creditors.",
+            "schedule": [
+              "0 8 1 * *"
+            ],
+            "on": true,
+            "last_run": "$now_iso-5d",
+            "next_run": "$now_iso+3w"
+          }
+        ]
+      },
+      "naledi@acme.rokct.ai": {
+        "routines": [
+          {
+            "id": "RTN-0006",
+            "stick": "naledi@acme.rokct.ai",
+            "name": "Follow up quotes",
+            "prompt": "Find quotes sent more than 5 days ago with no answer and draft a follow-up.",
+            "schedule": [
+              "0 10 * * 2"
+            ],
+            "on": true,
+            "last_run": "$now_iso-6d",
+            "next_run": "$now_iso+1d"
+          }
+        ]
+      }
+    },
+    "default": {
+      "routines": []
+    }
+  }
+}

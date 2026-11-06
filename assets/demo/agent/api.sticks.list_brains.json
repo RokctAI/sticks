@@ -1,0 +1,19 @@
+{
+  "brains": [
+    {
+      "provider": "demo",
+      "id": "quick",
+      "label": "Quick"
+    },
+    {
+      "provider": "demo",
+      "id": "balanced",
+      "label": "Balanced"
+    },
+    {
+      "provider": "demo",
+      "id": "thorough",
+      "label": "Thorough"
+    }
+  ]
+}

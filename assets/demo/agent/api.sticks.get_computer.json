@@ -1,0 +1,33 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "thandi@acme.rokct.ai": {
+        "state": "stopped",
+        "driver": "none",
+        "screen": false
+      },
+      "tumi@acme.rokct.ai": {
+        "state": "running",
+        "driver": "stick",
+        "screen": true,
+        "busy_with": "Tumi"
+      },
+      "kabelo@acme.rokct.ai": {
+        "state": "running",
+        "driver": "none",
+        "screen": true
+      },
+      "naledi@acme.rokct.ai": {
+        "state": "suspended",
+        "driver": "none",
+        "screen": false
+      }
+    },
+    "default": {
+      "state": "stopped",
+      "driver": "none",
+      "screen": false
+    }
+  }
+}

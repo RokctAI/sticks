@@ -1,0 +1,42 @@
+{
+  "chats": [
+    {
+      "id": "CHAT-0001",
+      "name": "Month-end",
+      "members": [
+        {
+          "botId": "kabelo@acme.rokct.ai",
+          "name": "Kabelo"
+        },
+        {
+          "botId": "thandi@acme.rokct.ai",
+          "name": "Thandi"
+        }
+      ],
+      "preview": "Kabelo: the reconciliation is ready for you.",
+      "unread": true,
+      "at": "$now_iso-40m"
+    },
+    {
+      "id": "CHAT-0002",
+      "name": "Tender team",
+      "members": [
+        {
+          "botId": "tumi@acme.rokct.ai",
+          "name": "Tumi"
+        },
+        {
+          "botId": "naledi@acme.rokct.ai",
+          "name": "Naledi"
+        },
+        {
+          "botId": "kabelo@acme.rokct.ai",
+          "name": "Kabelo"
+        }
+      ],
+      "preview": "Tumi: pricing schedule drafted.",
+      "unread": false,
+      "at": "$now_iso-1d"
+    }
+  ]
+}
