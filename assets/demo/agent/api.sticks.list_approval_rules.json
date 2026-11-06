@@ -1,0 +1,22 @@
+{
+  "rules": [
+    {
+      "id": "RULE-0001",
+      "kind": "connector",
+      "value": "Gmail",
+      "effect": "require_approval"
+    },
+    {
+      "id": "RULE-0002",
+      "kind": "site",
+      "value": "etenders.gov.za",
+      "effect": "always_allow"
+    },
+    {
+      "id": "RULE-0003",
+      "kind": "tool",
+      "value": "Make a payment",
+      "effect": "deny"
+    }
+  ]
+}

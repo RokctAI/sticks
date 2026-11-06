@@ -1,0 +1,14 @@
+{
+  "spaces": [
+    {
+      "id": "SPC-1",
+      "name": "Acme",
+      "current": true
+    },
+    {
+      "id": "SPC-2",
+      "name": "South River",
+      "current": false
+    }
+  ]
+}
