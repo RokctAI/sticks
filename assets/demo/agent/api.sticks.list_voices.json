@@ -1,0 +1,19 @@
+{
+  "voices": [
+    {
+      "id": "V-1",
+      "label": "Thandeka",
+      "description": "Warm, South African English"
+    },
+    {
+      "id": "V-2",
+      "label": "Sipho",
+      "description": "Calm and clear"
+    },
+    {
+      "id": "V-3",
+      "label": "Lerato",
+      "description": "Bright and quick"
+    }
+  ]
+}

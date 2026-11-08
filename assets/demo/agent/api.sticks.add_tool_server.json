@@ -1,0 +1,10 @@
+{
+  "id": "MCP-2",
+  "name": "New",
+  "endpoint": "https://x.example/mcp",
+  "health": {
+    "status": "ok",
+    "message": null,
+    "toolCount": 3
+  }
+}

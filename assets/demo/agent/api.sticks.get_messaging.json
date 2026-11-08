@@ -1,0 +1,44 @@
+{
+  "enabled": true,
+  "workChatsAvailable": true,
+  "providers": [
+    "whatsapp",
+    "slack"
+  ],
+  "addresses": {
+    "whatsapp": "+27 60 000 0000"
+  },
+  "links": [
+    {
+      "id": "ID-1",
+      "provider": "whatsapp",
+      "address": "+27 82 555 0101",
+      "botId": "thandi@acme.rokct.ai",
+      "botName": "Thandi"
+    }
+  ],
+  "groups": [
+    {
+      "id": "GRP-1",
+      "name": "Acme finance",
+      "status": "invited",
+      "detail": "whatsapp"
+    }
+  ],
+  "stickLinks": [
+    {
+      "id": "CON-1",
+      "name": "Lindiwe",
+      "status": "pending",
+      "incoming": true,
+      "detail": "Mabena Logistics"
+    }
+  ],
+  "workChats": [
+    {
+      "id": "WS-1",
+      "name": "Acme",
+      "stick": "Thandi"
+    }
+  ]
+}

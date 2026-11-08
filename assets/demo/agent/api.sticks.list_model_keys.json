@@ -1,0 +1,9 @@
+{
+  "keys": [
+    {
+      "id": "CRED-1",
+      "provider": "anthropic",
+      "label": "My key"
+    }
+  ]
+}

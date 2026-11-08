@@ -1,0 +1,18 @@
+{
+  "organizations": [
+    {
+      "id": "ORG-1",
+      "name": "Acme",
+      "space": "SPC-1",
+      "current": true,
+      "canManage": true
+    },
+    {
+      "id": "ORG-2",
+      "name": "Acme Logistics",
+      "space": "SPC-2",
+      "current": false,
+      "canManage": true
+    }
+  ]
+}

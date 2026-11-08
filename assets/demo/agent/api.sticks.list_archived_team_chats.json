@@ -1,0 +1,15 @@
+{
+  "chats": [
+    {
+      "id": "g-old",
+      "name": "Year-end party",
+      "preview": "Venue booked.",
+      "members": [
+        {
+          "botId": "thandi@acme.rokct.ai",
+          "name": "Thandi"
+        }
+      ]
+    }
+  ]
+}

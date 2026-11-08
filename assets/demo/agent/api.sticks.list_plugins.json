@@ -1,0 +1,22 @@
+{
+  "plugins": [
+    {
+      "id": "CAP-1",
+      "name": "Sage accounting",
+      "kind": "plugin",
+      "source": "github.com/rokct/sage-plugin"
+    }
+  ],
+  "servers": [
+    {
+      "id": "MCP-1",
+      "name": "Company files",
+      "endpoint": "https://files.acme.example/mcp",
+      "health": {
+        "status": "ok",
+        "message": null,
+        "toolCount": 6
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "MCP-1",
+  "name": "Company files",
+  "endpoint": "https://files.acme.example/mcp",
+  "health": {
+    "status": "ok",
+    "message": null,
+    "toolCount": 6
+  }
+}

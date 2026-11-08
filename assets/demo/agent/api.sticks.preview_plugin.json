@@ -1,0 +1,15 @@
+{
+  "name": "Tender tools",
+  "description": "Reads tender packs and fills returnable forms.",
+  "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "skills": [
+    {
+      "name": "Tender summary"
+    },
+    {
+      "name": "Fill SBD forms"
+    }
+  ],
+  "mcpServers": [],
+  "skipped": []
+}
