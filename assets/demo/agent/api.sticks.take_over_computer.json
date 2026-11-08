@@ -1,0 +1,4 @@
+{
+  "leaseId": "LEASE-1",
+  "expiresAt": "$now_iso+1h"
+}

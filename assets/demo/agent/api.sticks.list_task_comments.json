@@ -1,0 +1,17 @@
+{
+  "comments": [
+    {
+      "id": "CMT-0001",
+      "body": "Started on the pricing schedule. The rates sheet from last year is in the folder.",
+      "stick": "tumi@acme.rokct.ai",
+      "author": "Tumi",
+      "at": "$now_iso-3h"
+    },
+    {
+      "id": "CMT-0002",
+      "body": "Use this year's diesel price, not last year's.",
+      "author": "You",
+      "at": "$now_iso-1h"
+    }
+  ]
+}

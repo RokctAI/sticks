@@ -1,0 +1,88 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "kabelo@acme.rokct.ai": {
+        "skills": [
+          {
+            "id": "TS-0001",
+            "botId": "kabelo@acme.rokct.ai",
+            "name": "Capture a supplier invoice",
+            "goal": "Capture a supplier invoice",
+            "status": "draft",
+            "playbook": {
+              "whenToUse": "When a supplier invoice arrives by email",
+              "inputs": [
+                "The invoice PDF"
+              ],
+              "steps": [
+                "Open the invoice in the email",
+                "Check the amount against the order",
+                "Capture it in the accounts system"
+              ],
+              "howToCheck": "The invoice shows as captured",
+              "whatToReturn": "The invoice number and amount",
+              "approvalBoundaries": "Ask before paying anything",
+              "failureHandling": "Stop and tell the owner"
+            },
+            "recording": {
+              "events": [
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "snapshots": [
+                {},
+                {},
+                {}
+              ]
+            }
+          },
+          {
+            "id": "TS-0002",
+            "botId": "kabelo@acme.rokct.ai",
+            "name": "Download a bank statement",
+            "goal": "Download last month's bank statement",
+            "status": "saved",
+            "playbook": {
+              "whenToUse": "When a supplier invoice arrives by email",
+              "inputs": [
+                "The invoice PDF"
+              ],
+              "steps": [
+                "Open the invoice in the email",
+                "Check the amount against the order",
+                "Capture it in the accounts system"
+              ],
+              "howToCheck": "The invoice shows as captured",
+              "whatToReturn": "The invoice number and amount",
+              "approvalBoundaries": "Ask before paying anything",
+              "failureHandling": "Stop and tell the owner"
+            },
+            "recording": {
+              "events": [
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "snapshots": [
+                {},
+                {},
+                {}
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "default": {
+      "skills": []
+    }
+  }
+}
