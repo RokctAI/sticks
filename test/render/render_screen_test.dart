@@ -356,6 +356,28 @@ Future<void> loadRealFonts() async {
         'on the page would render as a blank box');
   }
   await load('packages/remixicon/Remix', <File>[remix]);
+
+  // agent_sdk bundles the Sticks faces (Montserrat headings, Nunito body) and
+  // asks for them with package: 'agent_sdk'. Asset fonts are not registered
+  // in widget tests, so without these the dark team page draws block glyphs.
+  final agentFonts = Directory('.rokct/cache/agent/lib/assets/fonts');
+  if (!agentFonts.existsSync()) {
+    throw StateError('agent_sdk fonts missing at ${agentFonts.path} - Sticks '
+        'text would render as the FlutterTest block font');
+  }
+  List<File> faces(String family) => agentFonts
+      .listSync()
+      .whereType<File>()
+      .where((f) => f.uri.pathSegments.last.startsWith('$family-'))
+      .toList();
+  for (final family in <String>['Montserrat', 'Nunito']) {
+    final files = faces(family);
+    if (files.isEmpty) {
+      throw StateError('no $family faces in ${agentFonts.path}');
+    }
+    await load('packages/agent_sdk/$family', files);
+    await load(family, files);
+  }
 }
 
 /// App-wide state the screen reads before it builds, in main.dart's order.
