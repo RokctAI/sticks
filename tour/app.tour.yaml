@@ -8,6 +8,9 @@
 app:
   name: Sticks
   tagline: AI employees that get the work done
+  # The app's real launcher icon, straight from the Android resources: the
+  # feature graphic, store/icon-512.png and the video end card use it.
+  logo: android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 video:
   hook: "Meet your team of AI employees."
   offer: "Hire your first Stick today."
