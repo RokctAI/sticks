@@ -173,6 +173,8 @@ class _HarnessNav implements SticksNav {
   @override
   void openSettings() {}
   @override
+  void openMore(String screen, {String? id}) {}
+  @override
   void openLock() {}
   @override
   void back() {}
