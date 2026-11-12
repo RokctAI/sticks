@@ -1,0 +1,18 @@
+{
+  "ready": true,
+  "transcribe": true,
+  "provider": "elevenlabs",
+  "voiceId": "V-2",
+  "services": [
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "transcribe": true
+    },
+    {
+      "id": "fish",
+      "name": "Fish Audio",
+      "transcribe": false
+    }
+  ]
+}

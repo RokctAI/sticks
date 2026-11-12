@@ -1,0 +1,21 @@
+{
+  "id": "TS-0003",
+  "botId": "kabelo@acme.rokct.ai",
+  "name": "",
+  "goal": "File the VAT return",
+  "status": "recording",
+  "playbook": {
+    "whenToUse": "",
+    "inputs": [],
+    "steps": [],
+    "howToCheck": "",
+    "whatToReturn": "",
+    "approvalBoundaries": "",
+    "failureHandling": ""
+  },
+  "recording": {
+    "events": [],
+    "snapshots": []
+  },
+  "expiresAt": "$now_iso+1h"
+}

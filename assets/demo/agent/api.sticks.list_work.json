@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "ART-0011",
+      "kind": "file",
+      "title": "Tender summary DWS-2026-114.pdf",
+      "description": "Go: closes 21 Nov, needs B-BBEE certificate.",
+      "stick": "tumi@acme.rokct.ai",
+      "type": "application/pdf",
+      "at": "$now_iso-3h"
+    },
+    {
+      "id": "PAGE-0004",
+      "kind": "page",
+      "title": "October debtors report",
+      "description": "R 48 200 outstanding across 7 customers.",
+      "stick": "kabelo@acme.rokct.ai",
+      "at": "$now_iso-1d"
+    },
+    {
+      "id": "ART-0010",
+      "kind": "file",
+      "title": "Quote Mokoena 40 seats.pdf",
+      "description": null,
+      "stick": "naledi@acme.rokct.ai",
+      "type": "application/pdf",
+      "at": "$now_iso-2d"
+    },
+    {
+      "id": "PAGE-0003",
+      "kind": "page",
+      "title": "Next week at a glance",
+      "description": "Two clashes on Tuesday.",
+      "stick": "thandi@acme.rokct.ai",
+      "at": "$now_iso-3d"
+    },
+    {
+      "id": "ART-0009",
+      "kind": "file",
+      "title": "Bank reconciliation October.xlsx",
+      "description": null,
+      "stick": "kabelo@acme.rokct.ai",
+      "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "at": "$now_iso-5d"
+    }
+  ]
+}

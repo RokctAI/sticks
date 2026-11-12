@@ -1,0 +1,28 @@
+{
+  "skills": [
+    {
+      "id": "SKL-0001",
+      "name": "Write an email",
+      "description": "Drafts an email in your tone and asks you before it goes out.",
+      "source": "builtin"
+    },
+    {
+      "id": "SKL-0002",
+      "name": "Read a PDF",
+      "description": "Pulls the dates, amounts and names out of a PDF.",
+      "source": "builtin"
+    },
+    {
+      "id": "SKL-0003",
+      "name": "Tender summary",
+      "description": "Turns a tender pack into a one-page go or no-go summary.",
+      "source": "user"
+    },
+    {
+      "id": "SKL-0004",
+      "name": "Debtor reminder",
+      "description": "A polite, firm reminder for an overdue invoice, with the statement attached.",
+      "source": "user"
+    }
+  ]
+}
