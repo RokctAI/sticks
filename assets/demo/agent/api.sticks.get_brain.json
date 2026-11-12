@@ -1,0 +1,13 @@
+{
+  "$demo_select": {
+    "by": "payload.stick",
+    "cases": {
+      "tumi@acme.rokct.ai": {
+        "brain": "demo/thorough"
+      }
+    },
+    "default": {
+      "brain": null
+    }
+  }
+}

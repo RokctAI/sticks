@@ -1,0 +1,8 @@
+{
+  "id": "SKL-0003",
+  "name": "Tender summary",
+  "description": "Turns a tender pack into a one-page go or no-go summary.",
+  "source": "user",
+  "readOnly": false,
+  "content": "---\nname: Tender summary\ndescription: Turns a tender pack into a one-page go or no-go summary.\n---\n\nRead the whole pack. List the returnable documents, the briefing date and the closing date. Say go or no-go and why, in one page."
+}

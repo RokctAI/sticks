@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash background in dark mode: the colour of the
+         dark Sticks splash image (drawable-night/background.png). -->
+    <color name="splash_background">#161615</color>
+</resources>

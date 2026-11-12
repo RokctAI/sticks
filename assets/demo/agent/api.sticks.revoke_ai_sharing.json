@@ -1,0 +1,28 @@
+{
+  "scope": "account",
+  "version": "2026-09-14",
+  "privacyUrl": "https://rokct.ai/privacy",
+  "recipients": [
+    {
+      "key": "model:anthropic",
+      "name": "Anthropic",
+      "use": "model",
+      "detail": "Messages, chat history, Stick instructions, memories, attachments and screenshots, to run your Sticks.",
+      "allowed": false
+    },
+    {
+      "key": "voice:openai",
+      "name": "OpenAI",
+      "use": "voice",
+      "detail": "Your recordings, to write them out, and text you play, to read it aloud.",
+      "allowed": false
+    },
+    {
+      "key": "memory:mem0",
+      "name": "Mem0",
+      "use": "memory",
+      "detail": "Chat summaries and memories, to remember and recall them.",
+      "allowed": false
+    }
+  ]
+}

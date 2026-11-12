@@ -1,0 +1,28 @@
+{
+  "runs": [
+    {
+      "id": "RUN-0103",
+      "status": "completed",
+      "error": null,
+      "at": "$now_iso-1d"
+    },
+    {
+      "id": "RUN-0102",
+      "status": "waiting",
+      "error": null,
+      "at": "$now_iso-2d"
+    },
+    {
+      "id": "RUN-0101",
+      "status": "completed",
+      "error": null,
+      "at": "$now_iso-3d"
+    },
+    {
+      "id": "RUN-0100",
+      "status": "failed",
+      "error": "The mail server did not answer. It tried again an hour later.",
+      "at": "$now_iso-4d"
+    }
+  ]
+}

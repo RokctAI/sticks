@@ -1,0 +1,70 @@
+{
+  "$demo_select": {
+    "by": "payload.chat",
+    "cases": {
+      "CHAT-0001": {
+        "lines": [
+          {
+            "id": "L1",
+            "text": "@Kabelo where are we with month-end?",
+            "at": "$now_iso-2h"
+          },
+          {
+            "id": "L2",
+            "stick": "kabelo@acme.rokct.ai",
+            "name": "Kabelo",
+            "text": "Bank is reconciled. Two debit orders I can't match; I asked Thandi to find the slips.",
+            "at": "$now_iso-110m"
+          },
+          {
+            "id": "L3",
+            "stick": "thandi@acme.rokct.ai",
+            "name": "Thandi",
+            "text": "Found both in the email from the bank. Sent them to Kabelo.",
+            "at": "$now_iso-90m"
+          },
+          {
+            "id": "L4",
+            "stick": "kabelo@acme.rokct.ai",
+            "name": "Kabelo",
+            "text": "The reconciliation is ready for you.",
+            "at": "$now_iso-40m"
+          }
+        ]
+      },
+      "CHAT-0002": {
+        "lines": [
+          {
+            "id": "L5",
+            "text": "Let's bid on DWS-2026-114.",
+            "at": "$now_iso-2d"
+          },
+          {
+            "id": "L6",
+            "stick": "tumi@acme.rokct.ai",
+            "name": "Tumi",
+            "text": "On it. Naledi, can you give me the unit prices for 500ml and 5L?",
+            "at": "$now_iso-2d"
+          },
+          {
+            "id": "L7",
+            "stick": "naledi@acme.rokct.ai",
+            "name": "Naledi",
+            "text": "500ml R6.50, 5L R24 at that volume.",
+            "at": "$now_iso-1d"
+          },
+          {
+            "id": "L8",
+            "stick": "tumi@acme.rokct.ai",
+            "name": "Tumi",
+            "text": "Pricing schedule drafted. I'll ask you before it is submitted.",
+            "at": "$now_iso-1d"
+          }
+        ]
+      }
+    },
+    "default": {
+      "lines": []
+    }
+  }
+}

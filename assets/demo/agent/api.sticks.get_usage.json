@@ -1,0 +1,19 @@
+{
+  "runs": 214,
+  "modelCalls": 1630,
+  "inputTokens": 4120000,
+  "outputTokens": 610000,
+  "costUsd": 38.4,
+  "models": [
+    {
+      "provider": "demo",
+      "model": "Quick",
+      "costUsd": 21.1
+    },
+    {
+      "provider": "demo",
+      "model": "Thorough",
+      "costUsd": 17.3
+    }
+  ]
+}

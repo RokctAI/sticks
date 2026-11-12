@@ -1,0 +1,34 @@
+{
+  "hits": [
+    {
+      "kind": "message",
+      "title": "Tumi",
+      "snippet": "Pricing schedule drafted for DWS-2026-114.",
+      "stick": "tumi@acme.rokct.ai"
+    },
+    {
+      "kind": "chat",
+      "title": "Month-end",
+      "snippet": "The reconciliation is ready for you.",
+      "chat": "CHAT-0001"
+    },
+    {
+      "kind": "file",
+      "title": "Tender summary DWS-2026-114.pdf",
+      "snippet": "Go: closes 21 Nov.",
+      "stick": "tumi@acme.rokct.ai"
+    },
+    {
+      "kind": "routine",
+      "title": "Overdue invoices",
+      "snippet": "List invoices more than 30 days overdue.",
+      "stick": "kabelo@acme.rokct.ai"
+    },
+    {
+      "kind": "message",
+      "title": "Naledi",
+      "snippet": "Quote for Mokoena, 40 seats, sent.",
+      "stick": "naledi@acme.rokct.ai"
+    }
+  ]
+}

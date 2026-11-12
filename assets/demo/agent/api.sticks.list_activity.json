@@ -1,0 +1,64 @@
+{
+  "$demo_select": {
+    "by": "payload.filter",
+    "cases": {
+      "active": {
+        "runs": [
+          {
+            "runId": "RUN-0201",
+            "botId": "tumi@acme.rokct.ai",
+            "botName": "Tumi",
+            "status": "running",
+            "promptSnippet": "Drafting the pricing schedule for DWS-2026-114",
+            "updatedAt": "$now_iso-5m"
+          },
+          {
+            "runId": "RUN-0202",
+            "botId": "kabelo@acme.rokct.ai",
+            "botName": "Kabelo",
+            "groupName": "Month-end",
+            "status": "waiting_input",
+            "promptSnippet": "Waiting for your OK on the reconciliation",
+            "updatedAt": "$now_iso-40m"
+          },
+          {
+            "runId": "RUN-0203",
+            "botId": "thandi@acme.rokct.ai",
+            "botName": "Thandi",
+            "status": "running",
+            "promptSnippet": "Sorting the overnight inbox",
+            "agentMessage": {
+              "fromBotName": "Kabelo",
+              "kind": "request",
+              "text": "Find the two debit order slips"
+            },
+            "updatedAt": "$now_iso-12m"
+          }
+        ]
+      },
+      "recent": {
+        "runs": [
+          {
+            "runId": "RUN-0190",
+            "botId": "naledi@acme.rokct.ai",
+            "botName": "Naledi",
+            "status": "completed",
+            "promptSnippet": "Sent the 40-seat quote to Mokoena",
+            "updatedAt": "$now_iso-2d"
+          },
+          {
+            "runId": "RUN-0189",
+            "botId": "kabelo@acme.rokct.ai",
+            "botName": "Kabelo",
+            "status": "failed",
+            "promptSnippet": "Overdue invoices: mail server did not answer",
+            "updatedAt": "$now_iso-4d"
+          }
+        ]
+      }
+    },
+    "default": {
+      "runs": []
+    }
+  }
+}
