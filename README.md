@@ -29,6 +29,12 @@ tour run, so new screens appear here automatically.
 | ![Sticks Memory][s22] | ![Sticks Computer][s23] | ![Sticks Work][s24] |
 | **Sticks Chats** | **Sticks Chat** | **Sticks Skills** |
 | ![Sticks Chats][s25] | ![Sticks Chat][s26] | ![Sticks Skills][s27] |
+| **Sticks Rules** | **Sticks Apps** | **Sticks Spaces** |
+| ![Sticks Rules][s28] | ![Sticks Apps][s29] | ![Sticks Spaces][s30] |
+| **Sticks Archived** | **Sticks Board** | **Sticks Notepad** |
+| ![Sticks Archived][s31] | ![Sticks Board][s32] | ![Sticks Notepad][s33] |
+| **Sticks Activity** | **Sticks Usage** | **Sticks Brain** |
+| ![Sticks Activity][s34] | ![Sticks Usage][s35] | ![Sticks Brain][s36] |
 
 The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
 with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
@@ -60,6 +66,15 @@ with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
 [s25]: marketing/tour/store/25-sticks_chats.png
 [s26]: marketing/tour/store/26-sticks_chat.png
 [s27]: marketing/tour/store/27-sticks_skills.png
+[s28]: marketing/tour/store/28-sticks_rules.png
+[s29]: marketing/tour/store/29-sticks_apps.png
+[s30]: marketing/tour/store/30-sticks_spaces.png
+[s31]: marketing/tour/store/31-sticks_archived.png
+[s32]: marketing/tour/store/32-sticks_board.png
+[s33]: marketing/tour/store/33-sticks_notepad.png
+[s34]: marketing/tour/store/34-sticks_activity.png
+[s35]: marketing/tour/store/35-sticks_usage.png
+[s36]: marketing/tour/store/36-sticks_brain.png
 <!-- @generated-tour-gallery-end -->
 
 <!-- @generated-render-strip-start -->

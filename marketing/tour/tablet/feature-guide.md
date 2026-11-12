@@ -172,7 +172,7 @@ Skills are the know-how every Stick in the space can use.
 
 ![What needs your OK](screenshots/28-sticks_rules.png)
 
-Decide what a Stick may do: go ahead, ask you first, or never.
+Decide what a Stick may do: go ahead, ask first, or never.
 
 ## 29. Connected apps
 
