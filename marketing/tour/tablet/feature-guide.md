@@ -119,3 +119,105 @@ Choose how the app looks and how your team reaches you.
 ![Lock screen](screenshots/19-sticks_lock.png)
 
 Lock the app when you step away, so your team's work stays private.
+
+## 20. Routines
+
+![Routines](screenshots/20-sticks_routines.png)
+
+A Stick does routine work on a schedule, and still asks before anything leaves.
+
+## 21. One routine
+
+![One routine](screenshots/21-sticks_routine.png)
+
+See what a routine does, run it now, and check its past runs.
+
+## 22. What it remembers
+
+![What it remembers](screenshots/22-sticks_memory.png)
+
+A Stick remembers your preferences between tasks; correct or forget any note.
+
+## 23. Its own computer
+
+![Its own computer](screenshots/23-sticks_computer.png)
+
+Each Stick works on its own computer, never yours.
+
+## 24. Work they made
+
+![Work they made](screenshots/24-sticks_work.png)
+
+Files and pages your Sticks made, in one place.
+
+## 25. Team chats
+
+![Team chats](screenshots/25-sticks_chats.png)
+
+Talk to several Sticks in one chat.
+
+## 26. A team chat
+
+![A team chat](screenshots/26-sticks_chat.png)
+
+Sticks work together in a team chat and report back to you.
+
+## 27. Skills
+
+![Skills](screenshots/27-sticks_skills.png)
+
+Skills are the know-how every Stick in the space can use.
+
+## 28. What needs your OK
+
+![What needs your OK](screenshots/28-sticks_rules.png)
+
+Decide what a Stick may do: go ahead, ask first, or never.
+
+## 29. Connected apps
+
+![Connected apps](screenshots/29-sticks_apps.png)
+
+See which apps your Sticks may use.
+
+## 30. Spaces
+
+![Spaces](screenshots/30-sticks_spaces.png)
+
+Keep separate businesses in separate spaces.
+
+## 31. Archived Sticks
+
+![Archived Sticks](screenshots/31-sticks_archived.png)
+
+An archived Stick keeps its memory; bring it back any time.
+
+## 32. Board
+
+![Board](screenshots/32-sticks_board.png)
+
+Every task by column; hold a card to move it.
+
+## 33. Notepad
+
+![Notepad](screenshots/33-sticks_notepad.png)
+
+What a Stick keeps track of while it works.
+
+## 34. Activity
+
+![Activity](screenshots/34-sticks_activity.png)
+
+See what every Stick is doing right now.
+
+## 35. Usage
+
+![Usage](screenshots/35-sticks_usage.png)
+
+What your Sticks used this month.
+
+## 36. How it thinks
+
+![How it thinks](screenshots/36-sticks_brain.png)
+
+Pick the model each Stick thinks with.
