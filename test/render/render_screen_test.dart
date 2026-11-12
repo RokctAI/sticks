@@ -856,6 +856,8 @@ Future<void> _loadRealFontsOnce() async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Store pictures always show work clothes, never night or December looks.
+  StickOutfits.daytime = () => true;
 
   GoogleFonts.config.allowRuntimeFetching = true;
 
