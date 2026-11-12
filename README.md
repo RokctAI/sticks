@@ -23,8 +23,12 @@ tour run, so new screens appear here automatically.
 | ![Sticks Setup][s13] | ![Sticks Inbox][s14] | ![Sticks Calls][s15] |
 | **Sticks Talk** | **Sticks Report** | **Sticks Settings** |
 | ![Sticks Talk][s16] | ![Sticks Report][s17] | ![Sticks Settings][s18] |
-| **Sticks Lock** | | |
-| ![Sticks Lock][s19] | | |
+| **Sticks Lock** | **Sticks Routines** | **Sticks Routine** |
+| ![Sticks Lock][s19] | ![Sticks Routines][s20] | ![Sticks Routine][s21] |
+| **Sticks Memory** | **Sticks Computer** | **Sticks Work** |
+| ![Sticks Memory][s22] | ![Sticks Computer][s23] | ![Sticks Work][s24] |
+| **Sticks Chats** | **Sticks Chat** | **Sticks Skills** |
+| ![Sticks Chats][s25] | ![Sticks Chat][s26] | ![Sticks Skills][s27] |
 
 The full tour lives in the [feature guide](marketing/tour/feature-guide.md),
 with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
@@ -48,6 +52,14 @@ with walkthrough videos alongside it in [`marketing/tour/`](marketing/tour).
 [s17]: marketing/tour/store/17-sticks_report.png
 [s18]: marketing/tour/store/18-sticks_settings.png
 [s19]: marketing/tour/store/19-sticks_lock.png
+[s20]: marketing/tour/store/20-sticks_routines.png
+[s21]: marketing/tour/store/21-sticks_routine.png
+[s22]: marketing/tour/store/22-sticks_memory.png
+[s23]: marketing/tour/store/23-sticks_computer.png
+[s24]: marketing/tour/store/24-sticks_work.png
+[s25]: marketing/tour/store/25-sticks_chats.png
+[s26]: marketing/tour/store/26-sticks_chat.png
+[s27]: marketing/tour/store/27-sticks_skills.png
 <!-- @generated-tour-gallery-end -->
 
 <!-- @generated-render-strip-start -->
