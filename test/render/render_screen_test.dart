@@ -539,21 +539,31 @@ void _mockAbsentPlugins() {
   }
 }
 
-/// Pumps until the screen is READY - every [readyFinders] matches and no
-/// CircularProgressIndicator is showing - letting real async work (the demo
-/// gateway, sqlite) run between frames. Replaces a fixed ~1s wait that
-/// captured the light frame while it was still loading. Fails the test on
-/// [kReadyTimeout] instead of writing a broken frame.
+/// Shimmer placeholders (base_sdk's AppShimmer / ImageShimmer and skeletons
+/// built on them). They animate while mounted, so a frame holding one is a
+/// loading frame. Matched by type name, stable across shimmer 2.x.
+Finder shimmerPlaceholders() => find.byWidgetPredicate(
+      (Widget w) => w.runtimeType.toString() == 'Shimmer',
+      description: 'shimmer placeholder',
+    );
+
+/// Pumps until the screen is READY - every [readyFinders] matches, and no
+/// CircularProgressIndicator or shimmer placeholder is showing - letting real
+/// async work (the demo gateway, sqlite) run between frames. Replaces a fixed
+/// ~1s wait that captured the light frame while it was still loading. Fails
+/// the test on [kReadyTimeout] instead of writing a broken frame.
 Future<void> _pumpUntilReady(WidgetTester tester, {String phase = ''}) async {
   final deadline = DateTime.now().add(kReadyTimeout);
   final spinner = find.byType(CircularProgressIndicator);
+  final shimmer = shimmerPlaceholders();
   var stableFrames = 0;
   while (true) {
     await tester
         .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pump(const Duration(milliseconds: 100));
     final ready = readyFinders().every((f) => f.evaluate().isNotEmpty) &&
-        spinner.evaluate().isEmpty;
+        spinner.evaluate().isEmpty &&
+        shimmer.evaluate().isEmpty;
     // Two ready frames in a row, so a list that is still filling in (or a
     // spinner about to come back for a second request) is not captured
     // mid-way.
@@ -566,7 +576,8 @@ Future<void> _pumpUntilReady(WidgetTester tester, {String phase = ''}) async {
           .toList();
       fail('screen not ready after ${kReadyTimeout.inSeconds}s$phase: '
           '${missing.isEmpty ? '' : 'missing ${missing.join(', ')}; '}'
-          '${spinner.evaluate().length} spinner(s) still showing. '
+          '${spinner.evaluate().length} spinner(s) and '
+          '${shimmer.evaluate().length} shimmer placeholder(s) still showing. '
           'Refusing to capture a blank or loading frame.');
     }
   }
@@ -779,6 +790,7 @@ Future<void> renderVariant(
       // frame if either count is non-zero.
       'quality': <String, Object?>{
         'spinners': find.byType(CircularProgressIndicator).evaluate().length,
+        'shimmers': shimmerPlaceholders().evaluate().length,
         'blockGlyphTexts': blockGlyphs.length,
       },
       'elements': <Object>[
