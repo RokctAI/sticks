@@ -1,0 +1,83 @@
+{
+  "profile": "assistant",
+  "tour_tasks": [
+    {
+      "title": "Review the Sticks' morning summary",
+      "priority": "High",
+      "category": "Review",
+      "recurrence": "Daily",
+      "reminder": true,
+      "created_hours_ago": 2,
+      "subtasks": [
+        {
+          "title": "Read what each Stick did overnight",
+          "isDone": true
+        },
+        {
+          "title": "Answer the open questions",
+          "isDone": false
+        },
+        {
+          "title": "Approve the drafted replies",
+          "isDone": false
+        }
+      ],
+      "due_days": 1,
+      "due_hour": 8
+    },
+    {
+      "title": "Give the research Stick a supplier comparison",
+      "priority": "Medium",
+      "category": "Delegate",
+      "recurrence": "None",
+      "reminder": false,
+      "created_hours_ago": 4,
+      "subtasks": [
+        {
+          "title": "Write the brief",
+          "isDone": true
+        },
+        {
+          "title": "Set the budget",
+          "isDone": false
+        }
+      ],
+      "due_days": 1,
+      "due_hour": 11
+    },
+    {
+      "title": "Check this week's Stick spend",
+      "priority": "Low",
+      "category": "Admin",
+      "recurrence": "Weekly",
+      "reminder": true,
+      "created_hours_ago": 9,
+      "subtasks": [],
+      "due_days": 4,
+      "due_hour": 16
+    },
+    {
+      "title": "Set up a Stick for customer email",
+      "priority": "Medium",
+      "category": "Setup",
+      "recurrence": "None",
+      "reminder": false,
+      "created_hours_ago": 30,
+      "subtasks": [
+        {
+          "title": "Pick the model",
+          "isDone": true
+        },
+        {
+          "title": "Write its instructions",
+          "isDone": false
+        },
+        {
+          "title": "Test it on ten old emails",
+          "isDone": false
+        }
+      ],
+      "isLongTerm": true
+    }
+  ]
+}
