@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sticks_widget_bg">#FF1D1D1D</color>
+    <color name="sticks_widget_ink">#FFEEEEEE</color>
+    <color name="sticks_widget_soft">#FF999999</color>
+</resources>

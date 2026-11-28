@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sticks_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sticks_widget_bg"
+    android:orientation="vertical"
+    android:padding="14dp">
+    <TextView android:id="@+id/sticks_widget_title"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:maxLines="1" android:ellipsize="end"
+        android:textColor="#FFFF6600" android:textSize="12sp" android:textStyle="bold" />
+    <TextView android:id="@+id/sticks_widget_body"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="6dp" android:maxLines="3" android:ellipsize="end"
+        android:textColor="@color/sticks_widget_ink" android:textSize="14sp" />
+    <TextView android:id="@+id/sticks_widget_note"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="4dp" android:maxLines="1"
+        android:textColor="@color/sticks_widget_soft" android:textSize="12sp" />
+    <LinearLayout android:id="@+id/sticks_widget_actions"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:gravity="end" android:orientation="horizontal">
+        <TextView android:id="@+id/sticks_widget_decline"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="7dp" android:paddingBottom="7dp"
+            android:textColor="#FFFF6600" android:textSize="13sp" />
+        <TextView android:id="@+id/sticks_widget_approve"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/sticks_widget_button"
+            android:paddingStart="14dp" android:paddingEnd="14dp" android:paddingTop="7dp" android:paddingBottom="7dp"
+            android:textColor="#FFFFFFFF" android:textSize="13sp" />
+    </LinearLayout>
+</LinearLayout>
